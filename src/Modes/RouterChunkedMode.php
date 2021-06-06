@@ -44,15 +44,17 @@ class RouterChunkedMode extends Router
     /** @inheritdoc */
     public function find(string $method, string $path): ?Action
     {
+        $route = "{$method} {$path}";
+
         foreach ($this->patterns as [$pattern, $rules]) {
-            if (!preg_match($pattern, "{$method} {$path}", $matches)) continue;
+            if (!preg_match($pattern, $route, $matches)) continue;
 
             // To find the matching route, the rules are index by the route's
             // capture group. The route data (rule, target, names) is
             // intentionally bled from this loop.
             foreach ($rules as $index => [$rule, $target, $names]) {
                 $found = $matches[$index] ?? null;
-                if ($found) break;
+                if ($found == $route) break;
                 $found = null;
             }
 
