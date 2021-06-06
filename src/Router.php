@@ -28,7 +28,7 @@ abstract class Router
         self::MODE_REGEX => RouterRegexMode::class,
     ];
 
-    const RULE_TEMPLATE = '/\\\{([a-z][a-z0-9_]*)\\\}/i';
+    const RULE_TEMPLATE = '!\\\{([a-z][a-z0-9_]*)\\\}!i';
 
 
     /** @var array rule => target */
@@ -96,13 +96,15 @@ abstract class Router
     /**
      * Determine the parameter names of a route pattern.
      *
-     * @param string $pattern Route pattern
+     * @param string $rule Route pattern
      * @return string[]
      */
-    public static function extractRuleNames(string $pattern): array
+    public static function extractRuleNames(string $rule): array
     {
+        $rule = preg_quote($rule, '/');
+
         $matches = [];
-        if (!preg_match_all(self::RULE_TEMPLATE, $pattern, $matches, PREG_PATTERN_ORDER)) {
+        if (!preg_match_all(self::RULE_TEMPLATE, $rule, $matches, PREG_PATTERN_ORDER)) {
             return [];
         }
         return $matches[1];
@@ -112,18 +114,20 @@ abstract class Router
     /**
      * Insert parameters into a route pattern.
      *
-     * @param string $pattern Route pattern
+     * @param string $rule Route pattern
      * @param array $parameters Keyed array: name => value
      * @return string A regular string path
      */
-    public static function fillRuleValues(string $pattern, array $parameters): string
+    public static function fillRuleValues(string $rule, array $parameters): string
     {
+        $rule = preg_quote($rule, '!');
+
         return preg_replace_callback(
             self::RULE_TEMPLATE,
             function($m) use ($parameters) {
                 return $parameters[$m[1]] ?? $m[0];
             },
-            $pattern
+            $rule
         );
     }
 
