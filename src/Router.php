@@ -111,11 +111,15 @@ abstract class Router
     public static function extractRuleNames(string $rule): array
     {
         $rule = preg_quote($rule, '/');
-
         $matches = [];
-        if (!preg_match_all(self::RULE_TEMPLATE, $rule, $matches, PREG_PATTERN_ORDER)) {
-            return [];
-        }
+
+        if (!preg_match_all(
+            self::RULE_TEMPLATE,
+            $rule,
+            $matches,
+            PREG_PATTERN_ORDER,
+        )) return [];
+
         return $matches[1];
     }
 
