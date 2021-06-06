@@ -16,9 +16,11 @@ use karmabunny\router\Router;
 class RouterSingleMode extends Router
 {
 
+    const RULE_WILDCARD = '!\\\\\*+!';
+
     const PATTERN_NAMED = '(?<\1>[^/]+?)';
 
-    public $patterns = [];
+    const PATTERN_WILD = '(.+?)';
 
 
     /** @inheritdoc */
@@ -62,8 +64,8 @@ class RouterSingleMode extends Router
     {
         $pattern = preg_quote($rule, '!');
         $pattern = preg_replace(
-            self::RULE_TEMPLATE,
-            self::PATTERN_NAMED,
+            [self::RULE_TEMPLATE, self::RULE_WILDCARD],
+            [self::PATTERN_NAMED, self::PATTERN_WILD],
             $pattern
         );
 
