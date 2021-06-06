@@ -29,7 +29,7 @@ class RouterChunkedMode extends Router
         foreach ($this->patterns as [$pattern, $names, $indexes]) {
             if (!preg_match($pattern, "{$method} {$path}", $matches)) continue;
 
-            foreach ($indexes as $index => $target) {
+            foreach ($indexes as $index => [$rule, $target]) {
                 $found = $matches[$index] ?? null;
                 if ($found) break;
                 unset($found);
@@ -52,7 +52,7 @@ class RouterChunkedMode extends Router
             return new Action([
                 'target' => $target,
                 'args' => $args,
-                'rule' => $found,
+                'rule' => $rule,
                 'method' => $method,
                 'path' => $path,
             ]);
@@ -86,7 +86,7 @@ class RouterChunkedMode extends Router
 
             foreach ($chunk as $rule => $target) {
                 $names[] = null; // route.
-                $indexes[count($names)] = $target;
+                $indexes[count($names)] = [$rule, $target];
 
                 $pattern = preg_replace_callback(
                     self::RULE_TEMPLATE,
