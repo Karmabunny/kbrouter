@@ -1,3 +1,6 @@
 RewriteEngine On
 RewriteCond /demo/%{REQUEST_FILENAME} !-f
 RewriteRule ^.*$ /demo/$0 [QSA,PT,L]
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule .* index.php?_uri=$0 [QSA,PT,L]
