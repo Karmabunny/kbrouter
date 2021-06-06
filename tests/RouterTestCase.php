@@ -112,4 +112,28 @@ abstract class RouterTestCase extends TestCase
     }
 
 
+    public function testWildcards()
+    {
+        $action = $this->router->find('GET', '/abc/wild/whatever/you/want');
+        $this->assertNotNull($action);
+        $this->assertEquals('wildcard route', $action->target);
+        $this->assertEquals(['whatever/you/want'], $action->args);
+
+        $action = $this->router->find('GET', '/abc/pre/thing/guff/and/stuff');
+        $this->assertNotNull($action);
+        $this->assertEquals('wildcard route w/ pre', $action->target);
+        $this->assertEquals([
+            'pre' => 'thing',
+            'guff/and/stuff',
+        ], $action->args);
+
+        $action = $this->router->find('GET', '/abc/post/blah/blah/hello');
+        $this->assertNotNull($action);
+        $this->assertEquals('wildcard route w/ post', $action->target);
+        $this->assertEquals([
+            'post' => 'hello',
+            'blah/blah',
+        ], $action->args);
+    }
+
 }
