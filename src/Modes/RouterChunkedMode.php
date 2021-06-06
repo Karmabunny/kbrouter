@@ -16,37 +16,59 @@ use karmabunny\router\Router;
 class RouterChunkedMode extends Router
 {
 
+    /**
+     * Regex {var} or wildcard.
+     *
+     * - Match one, contains a var name
+     * - Empty, it's a wildcard
+     *
+     * @var string
+     */
+    const PATTERN_RULE = '!(?:\\\{([a-z][a-z0-9_]*)\\\}|\\\\\*+)!i';
+
     const PATTERN_POSITION = '([^/]+?)';
 
+    const PATTERN_WILD = '(.+?)';
 
-    /** @var array [ pattern, names, indexes ] */
+
+    /** @var array [ pattern, rules ] */
     public $patterns = [];
 
 
     /** @inheritdoc */
     public function find(string $method, string $path): ?Action
     {
-        foreach ($this->patterns as [$pattern, $names, $indexes]) {
+        foreach ($this->patterns as [$pattern, $rules]) {
             if (!preg_match($pattern, "{$method} {$path}", $matches)) continue;
 
-            foreach ($indexes as $index => [$rule, $target]) {
+            foreach ($rules as $index => [$rule, $target, $names]) {
                 $found = $matches[$index] ?? null;
                 if ($found) break;
-                unset($found);
+                $found = null;
             }
 
             if (!$found) return null;
 
+            $matches = array_slice($matches, $index + 1, count($names));
+
             $args = [];
+            $wildcards = [];
 
             foreach ($matches as $i => $arg) {
                 if (!$arg) continue;
-                if ($arg == $found) continue;
 
-                $name = $names[$i - 1] ?? null;
-                if (!$name) continue;
+                $name = $names[$i] ?? null;
 
-                $args[$name] = $arg;
+                if ($name !== null) {
+                    $args[$name] = $arg;
+                }
+                else {
+                    $wildcards[] = $arg;
+                }
+            }
+
+            foreach ($wildcards as $arg) {
+                $args[] = $arg;
             }
 
             return new Action([
@@ -76,30 +98,43 @@ class RouterChunkedMode extends Router
      */
     public function compile()
     {
-        $rules = array_chunk($this->routes, 10, true);
+        $routes = array_chunk($this->routes, 10, true);
         $methods = implode('|', $this->config->methods);
 
-        foreach ($rules as $chunk) {
-            $names = [];
+        foreach ($routes as $chunk) {
+            $index = 0;
             $patterns = [];
-            $indexes = [];
+            $rules = [];
 
             foreach ($chunk as $rule => $target) {
-                $names[] = null; // route.
-                $indexes[count($names)] = [$rule, $target];
+                $names = [];
 
                 $pattern = preg_quote($rule, '!');
+
                 $pattern = preg_replace_callback(
-                    self::RULE_TEMPLATE,
-                        function($matches) use (&$names) {
-                    $names[] = $matches[1];
-                    return self::PATTERN_POSITION;
-                }, $pattern);
+                    self::PATTERN_RULE,
+                    function ($matches) use (&$names) {
+                        $name = $matches[1] ?? null;
+                        $names[] = $name;
+
+                        return $name === null
+                            ? self::PATTERN_WILD
+                            : self::PATTERN_POSITION;
+                    },
+                    $pattern
+                );
 
                 if (!preg_match("!^(?:{$methods})\s+!", $rule)) {
                     $pattern = "[^\s]+ " . $pattern;
                 }
 
+                $rules[++$index] = [
+                    $rule,
+                    $target,
+                    $names,
+                ];
+
+                $index += count($names);
                 $patterns[] = "({$pattern})";
             }
 
@@ -111,8 +146,7 @@ class RouterChunkedMode extends Router
 
             $this->patterns[] = [
                 $pattern,
-                $names,
-                $indexes,
+                $rules,
             ];
         }
     }
