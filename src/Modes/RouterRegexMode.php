@@ -10,6 +10,12 @@ use karmabunny\router\Action;
 use karmabunny\router\Router;
 
 /**
+ * A regex-style router.
+ *
+ * This is the least preferred - it's difficult to optimise and encourages bad
+ * route design.
+ *
+ * It exists as a transitional implementation.
  *
  * @package karmabunny\router
  */
@@ -25,6 +31,7 @@ class RouterRegexMode extends Router
             $matches = [];
             if (!preg_match($pattern, "{$method} {$path}", $matches)) continue;
 
+            // Collect the arguments.
             array_shift($matches);
             $args = self::normalizeMatches($matches);
 
@@ -42,15 +49,19 @@ class RouterRegexMode extends Router
 
 
     /**
+     * Build a route pattern.
      *
+     * This is an internal detail to add the method component + flags
+     * to a pattern.
      *
      * @param string $pattern Route pattern
      * @return string Regex pattern
      */
-    public function expandRule(string $pattern): string
+    private function expandRule(string $pattern): string
     {
         $methods = implode('|', $this->config->methods);
 
+        // Add a method if doesn't already exist.
         if (!preg_match("!^(?:{$methods})\s+!", $pattern)) {
             $pattern = "[^\s]+ " . $pattern;
         }

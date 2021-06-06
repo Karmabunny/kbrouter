@@ -12,6 +12,7 @@ use karmabunny\router\Modes\RouterRegexMode;
 use karmabunny\router\Modes\RouterSingleMode;
 
 /**
+ * A regex powered router.
  *
  * @package karmabunny\router
  */
@@ -28,6 +29,11 @@ abstract class Router
         self::MODE_REGEX => RouterRegexMode::class,
     ];
 
+    /**
+     * Match for rule variables like `{var}`, after `preg_quote`.
+     *
+     * @var string
+     */
     const RULE_TEMPLATE = '!\\\{([a-z][a-z0-9_]*)\\\}!i';
 
 
@@ -39,7 +45,6 @@ abstract class Router
 
 
     /**
-     *
      * @param array $routes
      */
     protected function __construct($config)
@@ -53,9 +58,11 @@ abstract class Router
 
 
     /**
+     * Create a router.
      *
      * @param RouterConfig $config
      * @return Router
+     * @throws InvalidArgumentException
      */
     public static function create($config = []): Router
     {
@@ -74,6 +81,7 @@ abstract class Router
 
 
     /**
+     * Load routes.
      *
      * @param array $routes [ rule => target ]
      * @return void
@@ -85,6 +93,7 @@ abstract class Router
 
 
     /**
+     * Find a matching route.
      *
      * @param string $method
      * @param string $path
@@ -125,6 +134,7 @@ abstract class Router
         return preg_replace_callback(
             self::RULE_TEMPLATE,
             function($m) use ($parameters) {
+                // Arg name or fallback to the template.
                 return $parameters[$m[1]] ?? $m[0];
             },
             $rule

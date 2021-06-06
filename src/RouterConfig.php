@@ -7,6 +7,7 @@
 namespace karmabunny\router;
 
 /**
+ * The router config.
  *
  * @package karmabunny\router
  */
@@ -14,6 +15,7 @@ class RouterConfig
 {
 
     /**
+     * Which router implementation to use.
      *
      * @var string
      */
@@ -21,6 +23,7 @@ class RouterConfig
 
 
     /**
+     * Case sensitivity. By default - insensitive.
      *
      * @var bool
      */
@@ -28,6 +31,7 @@ class RouterConfig
 
 
     /**
+     * Permitted methods.
      *
      * @var string[]
      */
@@ -35,6 +39,7 @@ class RouterConfig
 
 
     /**
+     * Build a config.
      *
      * @param array $config
      */
