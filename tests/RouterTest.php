@@ -70,10 +70,10 @@ class RouterTest extends TestCase
     }
 
 
-    public function testAutoRoute()
-    {
-
-    }
+    // TODO
+    // public function testAutoRoute()
+    // {
+    // }
 
 
     public function testNormalize()
