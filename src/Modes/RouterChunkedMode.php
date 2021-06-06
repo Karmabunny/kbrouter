@@ -122,7 +122,7 @@ class RouterChunkedMode extends Router
      */
     public function compile()
     {
-        $routes = array_chunk($this->routes, 10, true);
+        $routes = array_chunk($this->routes, $this->config->chunk_size, true);
         $methods = implode('|', $this->config->methods);
 
         // We're going to build a set of hefty patterns.

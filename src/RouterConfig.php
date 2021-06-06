@@ -39,6 +39,14 @@ class RouterConfig
 
 
     /**
+     * (In chunked mode) - how many routes to jam into one regex.
+     *
+     * @var int
+     */
+    public $chunk_size = 10;
+
+
+    /**
      * Build a config.
      *
      * @param array $config
