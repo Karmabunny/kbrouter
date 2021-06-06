@@ -30,12 +30,8 @@ class RouterSingleMode extends Router
             $matches = [];
             if (!preg_match($pattern, "{$method} {$path}", $matches)) continue;
 
-            $args = [];
-
-            foreach ($matches as $key => $arg) {
-                if (is_numeric($key)) continue;
-                $args[$key] = $arg;
-            }
+            array_shift($matches);
+            $args = self::normalizeMatches($matches);
 
             return new Action([
                 'target' => $target,
