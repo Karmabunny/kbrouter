@@ -28,7 +28,7 @@ abstract class Router
         self::MODE_REGEX => RouterRegexMode::class,
     ];
 
-    const RULE_TEMPLATE = '/{([a-z][a-z0-9_]*)}/i';
+    const RULE_TEMPLATE = '/\\\{([a-z][a-z0-9_]*)\\\}/i';
 
 
     /** @var array rule => target */

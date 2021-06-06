@@ -60,15 +60,16 @@ class RouterSingleMode extends Router
      */
     public function expandRule(string $rule): string
     {
+        $pattern = preg_quote($rule, '!');
         $pattern = preg_replace(
             self::RULE_TEMPLATE,
             self::PATTERN_NAMED,
-            $rule
+            $pattern
         );
 
         $methods = implode('|', $this->config->methods);
 
-        if (!preg_match("!^(?:{$methods})\s+!", $rule)) {
+        if (!preg_match("!^(?:{$methods})\s+!", $pattern)) {
             $pattern = "[^\s]+ " . $pattern;
         }
 

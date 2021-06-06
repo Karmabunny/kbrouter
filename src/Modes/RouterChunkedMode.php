@@ -88,12 +88,13 @@ class RouterChunkedMode extends Router
                 $names[] = null; // route.
                 $indexes[count($names)] = [$rule, $target];
 
+                $pattern = preg_quote($rule, '!');
                 $pattern = preg_replace_callback(
                     self::RULE_TEMPLATE,
                         function($matches) use (&$names) {
                     $names[] = $matches[1];
                     return self::PATTERN_POSITION;
-                }, $rule);
+                }, $pattern);
 
                 if (!preg_match("!^(?:{$methods})\s+!", $rule)) {
                     $pattern = "[^\s]+ " . $pattern;
