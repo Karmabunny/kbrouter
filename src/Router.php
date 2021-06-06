@@ -8,6 +8,7 @@ namespace karmabunny\router;
 
 use InvalidArgumentException;
 use karmabunny\router\Modes\RouterChunkedMode;
+use karmabunny\router\Modes\RouterRegexMode;
 use karmabunny\router\Modes\RouterSingleMode;
 
 /**
@@ -18,12 +19,13 @@ abstract class Router
 {
 
     const MODE_CHUNKED = 'chunked';
-
     const MODE_SINGLE = 'single';
+    const MODE_REGEX = 'regex';
 
     const MODES = [
         self::MODE_SINGLE => RouterSingleMode::class,
         self::MODE_CHUNKED => RouterChunkedMode::class,
+        self::MODE_REGEX => RouterRegexMode::class,
     ];
 
     const RULE_TEMPLATE = '/{([a-z][a-z0-9_]*)}/i';
