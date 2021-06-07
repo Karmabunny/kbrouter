@@ -48,6 +48,26 @@ This mode provides the full regex engine as a route pattern. This is incompatibl
 This is a _transitional_ mode for old projects. I don't intend anyone to use for long periods of time.
 
 
+## Install
+
+Include the private KB composer repo.
+
+Add this to your `composer.json` file:
+
+```
+"repositories": [
+    {
+        "type": "composer",
+        "url": "https://packages.bunnysites.com"
+    }
+]
+```
+
+Install with composer:
+
+`composer require karmabunny/router`
+
+
 ## Usage
 
 ```php
