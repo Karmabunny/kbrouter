@@ -89,7 +89,8 @@ See `src/RouterConfig.php`.
 
 ## TODO
 
-- fix de-dupe variables for regex/simple mode.
+- some sort of caching
+- fix de-dupe variables for regex/simple mode
 - create auto routes from namespaces
 - create route attribute (PHP8)
 - `action->dispatch()`
