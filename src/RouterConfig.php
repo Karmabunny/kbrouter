@@ -19,7 +19,7 @@ class RouterConfig
      *
      * @var string
      */
-    public $mode = Router::MODE_SINGLE;
+    public $mode = Router::MODE_CHUNKED;
 
 
     /**
