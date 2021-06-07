@@ -117,7 +117,7 @@ abstract class Router
             self::RULE_TEMPLATE,
             $rule,
             $matches,
-            PREG_PATTERN_ORDER,
+            PREG_PATTERN_ORDER
         )) return [];
 
         return $matches[1];
