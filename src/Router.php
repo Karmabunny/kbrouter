@@ -45,7 +45,7 @@ abstract class Router
 
 
     /**
-     * @param array $routes
+     * @param RouterConfig|array $config
      */
     protected function __construct($config)
     {
@@ -60,7 +60,7 @@ abstract class Router
     /**
      * Create a router.
      *
-     * @param RouterConfig $config
+     * @param RouterConfig|array $config
      * @return Router
      * @throws InvalidArgumentException
      */
