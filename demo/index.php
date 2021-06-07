@@ -22,21 +22,7 @@ if (!$action) {
     not_found();
 }
 else {
-    dispatch($action->target, $action->args);
-}
-
-
-function dispatch($fn, $args)
-{
-    $reflect = new ReflectionFunction($fn);
-    $params = [];
-
-    foreach ($reflect->getParameters() as $param) {
-        $name = $param->getName();
-        $params[] = $args[$name] ?? null;
-    }
-
-    return $reflect->invokeArgs($params);
+    $action->invoke();
 }
 
 
