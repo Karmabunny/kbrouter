@@ -92,6 +92,6 @@ See `src/RouterConfig.php`.
 - some sort of caching
 - fix de-dupe variables for regex/simple mode
 - create auto routes from namespaces
-- create route attribute (PHP8)
+- create route attribute (PHP8, maybe @route doc)
 - `action->dispatch()`
-
+- ACTION method?
