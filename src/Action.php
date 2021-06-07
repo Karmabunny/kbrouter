@@ -117,10 +117,21 @@ class Action
             }
 
             // Reshuffle named args into the correct order.
+            $args = $this->args;
             $params = [];
+
             foreach ($reflect->getParameters() as $param) {
                 $name = $param->getName();
-                $params[] = $this->args[$name] ?? null;
+                $arg = $this->args[$name] ?? null;
+                if (!$arg) continue;
+
+                $params[] = $arg;
+                unset($args[$name]);
+            }
+
+            // Include wildcards at the end.
+            foreach ($args as $arg) {
+                $params[] = $arg;
             }
 
             return $function(...$params);
