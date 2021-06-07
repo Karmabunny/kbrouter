@@ -59,7 +59,17 @@ class RouterChunkedMode extends Router
             }
 
             // This shouldn't happen.
-            if (!$found) return null;
+            assert(isset($found));
+
+            /** @var int $index */
+            /** @var string $rule */
+            /** @var mixed $target */
+            /** @var string[] $names */
+
+            assert(isset($index));
+            assert(isset($rule));
+            assert(isset($target));
+            assert(isset($names));
 
             // A subset of matches - these are the arguments.
             $matches = array_slice($matches, $index + 1, count($names));
