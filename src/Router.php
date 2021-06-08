@@ -88,7 +88,7 @@ abstract class Router
      */
     public function load(array $routes)
     {
-        $this->routes = $routes;
+        $this->routes = array_merge($this->routes, $routes);
     }
 
 

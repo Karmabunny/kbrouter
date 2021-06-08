@@ -113,8 +113,8 @@ class RouterChunkedMode extends Router
     /** @inheritdoc */
     public function load(array $routes)
     {
+        $this->compile($routes);
         parent::load($routes);
-        $this->compile();
     }
 
 
@@ -128,16 +128,21 @@ class RouterChunkedMode extends Router
      * didn't feel beneficial. I may eat my words later. We can always switch
      * that in later if we need to.
      *
+     * @param array $routes [ rule => target ]
      * @return void
      */
-    public function compile()
+    public function compile(array $routes)
     {
-        $routes = array_chunk($this->routes, $this->config->chunk_size, true);
+        // If we've added a duplicate route, don't recompile it.
+        $routes = array_diff($routes, $this->routes);
+        if (empty($routes)) return;
+
+        $chunks = array_chunk($routes, $this->config->chunk_size, true);
         $methods = implode('|', $this->config->methods);
 
         // We're going to build a set of hefty patterns.
         // The 'rules' is a map of [ indexes => route-data ].
-        foreach ($routes as $chunk) {
+        foreach ($chunks as $chunk) {
             // Tracking capture groups.
             $index = 0;
 
