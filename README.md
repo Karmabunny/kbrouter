@@ -109,10 +109,7 @@ See `src/RouterConfig.php`.
 
 ## TODO
 
-- load() should _add_ routes, not replace
-   - also chunked compile() will duplicate atm, defs a bug
 - some sort of caching
-- fix de-dupe variables for regex/simple mode
 - create auto routes from namespaces
 - create route attribute (PHP8, maybe @route doc)
 - ACTION method?
