@@ -78,41 +78,35 @@ class RouterTest extends TestCase
 
     public function testNormalize()
     {
-        $matches = [
-            'm1' => 'abc',
-            'abc',
-            'wild',
-            'm2' => 'def',
-            'def',
-        ];
+        $matches = [];
+        preg_match('/(?<m1>abc)(wild)(stuff)(?<m2>def)/', 'abcwildstuffdef', $matches);
+        array_shift($matches);
 
         $expected = [
             'm1' => 'abc',
             'm2' => 'def',
             'wild',
+            'stuff',
         ];
 
         $actual = Router::normalizeMatches($matches);
         $this->assertEquals($expected, $actual);
 
+        // Testing duplicate stuff.
+        $matches = [];
+        preg_match('/(?<m1>abc)(?<m2>def)(abc)(wild)(wild)(?<m3>abc)/', 'abcdefabcwildwildabc', $matches);
+        array_shift($matches);
 
-        // $matches = [
-        //     'm1' => 'abc',
-        //     'abc',
-        //     'abc',
-        //     'wild',
-        //     'm2' => 'abc',
-        //     'abc',
-        // ];
+        $expected = [
+            'm1' => 'abc',
+            'm2' => 'def',
+            'm3' => 'abc',
+            'abc',
+            'wild',
+            'wild',
+        ];
 
-        // $expected = [
-        //     'm1' => 'abc',
-        //     'm2' => 'abc',
-        //     'abc',
-        //     'wild',
-        // ];
-
-        // $actual = Router::normalizeMatches($matches);
-        // $this->assertEquals($expected, $actual);
+        $actual = Router::normalizeMatches($matches);
+        $this->assertEquals($expected, $actual);
     }
 }

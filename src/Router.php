@@ -168,36 +168,31 @@ abstract class Router
      * ];
      * ```
      *
-     * **Beware!** The process requires the wildcard values to be unique from
-     * the named groups. Currently, I'm sure there's a way to fix this.
-     *
      * @param array $matches
      * @return array
      */
     public static function normalizeMatches(array $matches): array
     {
         $args = [];
+        $wildcards = [];
+        $ignore = false;
+
+        // Named groups are always followed by an unnamed group.
         foreach ($matches as $key => $arg) {
-            if (is_numeric($key)) continue;
-            $args[$key] = $arg;
+            if (!is_numeric($key)) {
+                $args[$key] = $arg;
+                $ignore = true;
+                continue;
+            }
+
+            if (!$ignore) {
+                $wildcards[] = $arg;
+            }
+
+            $ignore = false;
         }
 
-        // $wildcards = [];
-        // foreach ($matches as $value) {
-        //     $count = 0;
-
-        //     foreach ($args as $arg) {
-        //         if ($arg != $value) continue;
-        //         $count++;
-        //     }
-
-        //     if ($count < 2) {
-        //         $wildcards[] = $value;
-        //     }
-        // }
-
-        $wildcards = array_diff($matches, $args);
-
+        // Tack on the wildcards at the end.
         foreach ($wildcards as $arg) {
             $args[] = $arg;
         }
