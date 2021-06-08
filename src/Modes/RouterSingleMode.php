@@ -42,14 +42,14 @@ class RouterSingleMode extends Router
     const PATTERN_WILD = '(.+?)';
 
 
+    /** @var array [ pattern => [rule, target] ] */
+    public $patterns = [];
+
+
     /** @inheritdoc */
     public function find(string $method, string $path): ?Action
     {
-        foreach ($this->routes as $rule => $target) {
-            // Create a rule on-the-fly.
-            // TODO Could be pre-compiled I guess.
-            $pattern = $this->expandRule($rule);
-
+        foreach ($this->patterns as $pattern => [$rule, $target]) {
             $matches = [];
             if (!preg_match($pattern, "{$method} {$path}", $matches)) continue;
 
@@ -70,6 +70,15 @@ class RouterSingleMode extends Router
         return null;
     }
 
+
+    public function load(array $routes)
+    {
+        parent::load($routes);
+        foreach ($routes as $rule => $target) {
+            $pattern = $this->expandRule($rule);
+            $this->patterns[$pattern] = [$rule, $target];
+        }
+    }
 
     /**
      * Expand route patterns into full regex patterns.
