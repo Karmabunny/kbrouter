@@ -80,7 +80,7 @@ class RouterChunkedMode extends Router
             // Of the matches, determine their name + type.
             // Named variables have names, otherwise wildcards.
             foreach ($matches as $i => $arg) {
-                if (!$arg) continue;
+                if ($arg === null) continue;
 
                 $name = $names[$i] ?? null;
 

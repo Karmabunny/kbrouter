@@ -136,4 +136,21 @@ abstract class RouterTestCase extends TestCase
         ], $action->args);
     }
 
+
+
+    public function testZeroValue()
+    {
+        $action = $this->router->find('GET', '/abc/0');
+        $this->assertNotNull($action);
+        $this->assertEquals('route with variable', $action->target);
+        $this->assertEquals(['var1' => '0'], $action->args);
+
+        $action = $this->router->find('GET', '/abc/false');
+        $this->assertEquals('route with variable', $action->target);
+        $this->assertEquals(['var1' => 'false'], $action->args);
+
+        $action = $this->router->find('GET', '/abc/post/0/var');
+        $this->assertEquals('wildcard route w/ post', $action->target);
+        $this->assertEquals(['post' => 'var', '0'], $action->args);
+    }
 }

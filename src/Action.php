@@ -123,7 +123,7 @@ class Action
             foreach ($reflect->getParameters() as $param) {
                 $name = $param->getName();
                 $arg = $this->args[$name] ?? null;
-                if (!$arg) continue;
+                if ($arg === null) continue;
 
                 $params[] = $arg;
                 unset($args[$name]);
