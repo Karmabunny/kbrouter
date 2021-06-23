@@ -45,7 +45,7 @@ This is a base implementation of rule patterns.
 
 This mode provides the full regex engine as a route pattern. This is incompatible with the rule patterns used in the chunked + simple modes.
 
-This is a _transitional_ mode for old projects. I don't intend anyone to use for long periods of time.
+This is a _transitional_ mode for old projects. I don't intend anyone to use this for long periods of time.
 
 
 ## Install
@@ -97,6 +97,46 @@ echo $action->args, PHP_EOL;
 ```
 
 
+## Route table
+
+The route table can be built by hand as always. This a keyed array of rules to target. A 'target' is typically a callable.
+
+This is loaded into the router with `load($routes)`.
+
+The router itself has no preference how you manage your targets. That said, this package contains a bunch of utilities that assumes that your target is a callable, typically within a controller.
+
+
+### Route Discovery
+
+Instead of building your route table, perhaps try _route discovery_. This a method where one can write their routes right next to their controller actions.
+
+Like so:
+
+```php
+use karmabunny/route/Route;
+
+class MyController
+{
+    #[Route('GET /my/php8/{route}')]
+    public function php8Action() {}
+
+    /** @route GET /my/php7/{route} */
+    public function php7Action() {}
+}
+```
+
+If you're gifted with a PHP8 environment, you can use the new attributes feature! Otherwise the `@route` tag always works.
+
+
+### Action Routes
+
+TODO
+
+These are routes generated from namespaces.
+
+I can't yet decide _how_ magic these will be. All public methods? Or only tagged methods? Or perhaps exclude some methods? Only POST/PUT methods with an action param and security token? Idk!
+
+
 ## Config
 
 - `'mode'` - one of: single|chunked|regex
@@ -111,6 +151,5 @@ See `src/RouterConfig.php`.
 
 - some sort of caching
 - create auto routes from namespaces
-- create route attribute (PHP8, maybe @route doc)
 - ACTION method?
 - something about unicode?
