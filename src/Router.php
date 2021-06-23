@@ -10,6 +10,9 @@ use InvalidArgumentException;
 use karmabunny\router\Modes\RouterChunkedMode;
 use karmabunny\router\Modes\RouterRegexMode;
 use karmabunny\router\Modes\RouterSingleMode;
+use ReflectionClass;
+use ReflectionException;
+use ReflectionMethod;
 
 /**
  * A regex powered router.
@@ -89,6 +92,18 @@ abstract class Router
     public function load(array $routes)
     {
         $this->routes = array_merge($this->routes, $routes);
+    }
+
+
+    /**
+     * Load magic routes from a class.
+     *
+     * @param string|object $class
+     * @return void
+     */
+    public function loadFrom($class)
+    {
+        $this->load(self::extractRoutes($class));
     }
 
 
@@ -199,4 +214,48 @@ abstract class Router
 
         return $args;
     }
+
+
+    /**
+     * Find all the routes on a target object/class.
+     *
+     * An inline route is a PHP8 attribute or a @route doc comment.
+     *
+     * @param string|object $class
+     * @return string[] [ rule => target ]
+     * @throws ReflectionException
+     */
+    public static function extractRoutes($class): array
+    {
+        $reflect = new ReflectionClass($class);
+        $methods = $reflect->getMethods(ReflectionMethod::IS_PUBLIC);
+
+        $routes = [];
+
+        // Searching through all the public methods.
+        foreach ($methods as $method) {
+            $target = [$class, $method->getShortName()];
+
+            // God-master race PHP8.
+            if (PHP_VERSION_ID > 80000) {
+                $attributes = $method->getAttributes(Route::class);
+
+                foreach ($attributes as $attribute) {
+                    /** @var Route $route */
+                    $route = $attribute->newInstance();
+                    $routes[$route->rule] = $target;
+                }
+            }
+
+            // Just the peasant version for everyone else.
+            $docs = Route::parseDoc($method->getDocComment() ?: '');
+
+            foreach ($docs as $doc) {
+                $routes[$doc->rule] = $target;
+            }
+        }
+
+        return $routes;
+    }
+
 }
