@@ -4,8 +4,9 @@
 <p>this is a thing</p>
 
 <ul>
-    <li><a href="/about">About</a></li>
-    <li><a href="/contact">Contact</a></li>
+    <li><a href="/view/about">About</a></li>
+    <li><a href="/view/contact">Contact</a></li>
+    <li><a href="/routes">Routes</a></li>
 </ul>
 
 <form id="form">
