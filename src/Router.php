@@ -258,4 +258,22 @@ abstract class Router
         return $routes;
     }
 
+
+    /**
+     * Add routes discovered on the target class/object.
+     *
+     * This modifies the route parameter.
+     *
+     * @param array $routes [ rule => target ]
+     * @param string|object $class
+     * @return void
+     */
+    public static function addAutoRoutes(array &$routes, $class)
+    {
+        $auto = self::extractRoutes($class);
+
+        foreach ($auto as $rule => $target) {
+            $routes[$rule] = $target;
+        }
+    }
 }
