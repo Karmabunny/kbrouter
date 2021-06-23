@@ -134,7 +134,7 @@ class RouterChunkedMode extends Router
     public function compile(array $routes)
     {
         // If we've added a duplicate route, don't recompile it.
-        $routes = array_diff($routes, $this->routes);
+        $routes = array_diff_key($routes, $this->routes);
         if (empty($routes)) return;
 
         $chunks = array_chunk($routes, $this->config->chunk_size, true);
