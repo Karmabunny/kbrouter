@@ -9,14 +9,14 @@ use PHPUnit\Framework\TestCase;
 /**
  *
  */
-class RouteTest extends TestCase
+class AttributeRouteTest extends TestCase
 {
     /**
      * @requires PHP >= 8.0
      */
     public function testAttributeRoutes()
     {
-        $actual = Router::extractRoutes(TestController::class);
+        $actual = Router::extractFromAttributes(TestController::class);
         $expected = [
             'GET /test' => [TestController::class, 'actionTest'],
             '/thingo/{etc}' => [TestController::class, 'thingEtc'],
@@ -35,7 +35,7 @@ class RouteTest extends TestCase
      */
     public function testDocRoutes()
     {
-        $actual = Router::extractRoutes(TestController::class);
+        $actual = Router::extractFromAttributes(TestController::class);
         $expected = [
             'GET /test' => [TestController::class, 'actionTest'],
             '/thingo/{etc}' => [TestController::class, 'thingEtc'],
@@ -44,7 +44,6 @@ class RouteTest extends TestCase
 
         $this->assertEquals($expected, $actual);
     }
-
 
 }
 
