@@ -54,11 +54,12 @@ class App
      *
      * @route GET /
      * @route GET /home
+     * @route GET /welcome
      */
     #[Route('/')]
     public function index()
     {
-        header('location: /welcome');
+        header('location: /view/welcome');
     }
 
 
