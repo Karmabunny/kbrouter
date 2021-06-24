@@ -14,6 +14,7 @@ use PHP_CodeSniffer\Reports\Csv;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
+use ReflectionType;
 
 /**
  * A regex powered router.
@@ -281,7 +282,7 @@ abstract class Router
      * An attribute route is a PHP8 attribute or a @route doc comment.
      *
      * @param string|object $class
-     * @return string[] [ rule => target ]
+     * @return array [ rule => target ]
      * @throws ReflectionException
      */
     public static function extractFromAttributes($class): array
@@ -297,6 +298,7 @@ abstract class Router
 
             // God-master race PHP8.
             if (PHP_VERSION_ID > 80000) {
+                // @phpstan-ignore-next-line : PHP8 property, already guarded.
                 $attributes = $method->getAttributes(Route::class);
 
                 foreach ($attributes as $attribute) {
@@ -353,7 +355,7 @@ abstract class Router
      * - arguments must be one of: string, int, float, mixed
      *
      * @param string|object $class
-     * @return string[] [ rule => target ]
+     * @return array [ rule => target ]
      * @throws ReflectionException
      */
     public static function extractFromNamespaces($class): array
@@ -377,16 +379,16 @@ abstract class Router
 
             // Find some args first.
             foreach ($method->getParameters() as $parameter) {
-                $type = $parameter->getType();
-                $type_name = $type ? $type->getName() : 'mixed';
+                $type = $parameter->getType() ?: 'mixed';
 
                 // Not a supported arg type so skip the whole method.
-                if (!in_array($type_name, ['string', 'int', 'float', 'mixed'])) {
+                if (!in_array($type, ['string', 'int', 'float', 'mixed'])) {
 
                     // If the arg is nullable just skip it hey.
-                    if ($type and $type->allowsNull()) {
-                        continue;
-                    }
+                    if (
+                        ($type instanceof ReflectionType) and
+                        $type->allowsNull()
+                    ) continue;
 
                     continue 2;
                 }

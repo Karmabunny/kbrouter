@@ -29,7 +29,7 @@ class Route
      *
      * The attached method is the callable 'target'.
      *
-     * @param string|array $rule
+     * @param string $rule
      */
     public function __construct(string $rule)
     {
