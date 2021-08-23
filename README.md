@@ -150,6 +150,6 @@ See `src/RouterConfig.php`.
 ## TODO
 
 - some sort of caching
-- create auto routes from namespaces
 - ACTION method?
 - something about unicode?
+- match/sort explicit method (POST,GET) before wildcard methods
