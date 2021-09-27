@@ -379,17 +379,16 @@ abstract class Router
 
             // Find some args first.
             foreach ($method->getParameters() as $parameter) {
-                $type = $parameter->getType() ?: 'mixed';
+                $type = $parameter->getType();
+                $type_name = $type ? $type->getName() : 'mixed';
 
                 // Not a supported arg type so skip the whole method.
-                if (!in_array($type, ['string', 'int', 'float', 'mixed'])) {
+                if (!in_array($type_name, ['string', 'int', 'float', 'mixed'])) {
 
-                    // If the arg is nullable just skip it hey.
-                    if (
-                        ($type instanceof ReflectionType) and
-                        $type->allowsNull()
-                    ) continue;
+                    // But if the arg is nullable just skip it hey.
+                    if ($type and $type->allowsNull()) continue;
 
+                    // No good, skip the whole method.
                     continue 2;
                 }
 
