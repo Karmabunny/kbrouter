@@ -50,19 +50,6 @@ This is a _transitional_ mode for old projects. I don't intend anyone to use thi
 
 ## Install
 
-Include the private KB composer repo.
-
-Add this to your `composer.json` file:
-
-```
-"repositories": [
-    {
-        "type": "composer",
-        "url": "https://packages.bunnysites.com"
-    }
-]
-```
-
 Install with composer:
 
 `composer require karmabunny/router`
