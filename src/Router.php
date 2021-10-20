@@ -14,7 +14,9 @@ use PHP_CodeSniffer\Reports\Csv;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
+use ReflectionNamedType;
 use ReflectionType;
+use ReflectionUnionType;
 
 /**
  * A regex powered router.
@@ -380,12 +382,28 @@ abstract class Router
             // Find some args first.
             foreach ($method->getParameters() as $parameter) {
                 $type = $parameter->getType();
-                $type_name = $type ? $type->getName() : 'mixed';
+                $type_names = [];
+
+                if ($type instanceof ReflectionNamedType) {
+                    $type_names[] = $type->getName();
+                }
+                else if ($type instanceof ReflectionUnionType) {
+                    foreach ($type->getTypes() as $sub_type) {
+                        // @phpstan-ignore-next-line: This IS ALWAYS a named type. Gah.
+                        $type_name[] = $sub_type->getName();
+                    }
+                }
+                else {
+                    $type_names[] = 'mixed';
+                }
+
+                // Because route segments are just strings, we can only jam in these.
+                // This assumes a non-strict type mode.
+                $types = array_intersect($type_names, ['string', 'int', 'float', 'mixed']);
 
                 // Not a supported arg type so skip the whole method.
-                if (!in_array($type_name, ['string', 'int', 'float', 'mixed'])) {
-
-                    // But if the arg is nullable just skip it hey.
+                if (empty($types)) {
+                    // But if the arg is nullable we can just skip over it.
                     if ($type and $type->allowsNull()) continue;
 
                     // No good, skip the whole method.
