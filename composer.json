@@ -2,8 +2,15 @@
     "$schema": "https://getcomposer.org/schema.json",
     "name": "karmabunny/router",
     "description": "Routing library",
+    "keywords": ["router", "routing"],
     "type": "library",
     "license": "MIT",
+    "authors": [
+        {
+            "name": "Karmabunny",
+            "email": "info@karmabunny.com.au"
+        }
+    ],
     "require": {},
     "require-dev": {
         "phpunit/phpunit": "^9.5",
