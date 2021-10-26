@@ -10,12 +10,10 @@ use InvalidArgumentException;
 use karmabunny\router\Modes\RouterChunkedMode;
 use karmabunny\router\Modes\RouterRegexMode;
 use karmabunny\router\Modes\RouterSingleMode;
-use PHP_CodeSniffer\Reports\Csv;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 use ReflectionNamedType;
-use ReflectionType;
 use ReflectionUnionType;
 
 /**
@@ -44,6 +42,14 @@ abstract class Router
     const RULE_TEMPLATE = '!\\\{([a-z][a-z0-9_]*)\\\}!i';
 
 
+    /**
+     * Things to remove from namespace generated 'action' routes.
+     *
+     * Ah regrets, this should have been a config. But that would mean that
+     * extractFromNamespace() is non-static and it just gets messy from there on.
+     *
+     * @var string[]
+     */
     static $STRIP_ACTION_PATHS = [
         '/app',
         '/core',

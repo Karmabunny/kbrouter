@@ -121,7 +121,7 @@ class RouterChunkedMode extends Router
     /**
      * Creates chunked regex patterns and related metadata.
      *
-     * If you're following the FastRoute blog, this creates patterns with
+     * If you're following the FastRoute blog, this creates patterns with the
      * 'Group Position Based Chunked' method.
      *
      * I couldn't grok how to create 'Group Count Based' and it's complexity
