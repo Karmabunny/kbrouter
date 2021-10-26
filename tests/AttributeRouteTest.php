@@ -16,14 +16,14 @@ class AttributeRouteTest extends TestCase
      */
     public function testAttributeRoutes()
     {
-        $actual = Router::extractFromAttributes(TestController::class);
+        $actual = Router::extractFromAttributes(AttrTestController::class);
         $expected = [
-            'GET /test' => [TestController::class, 'actionTest'],
-            '/thingo/{etc}' => [TestController::class, 'thingEtc'],
-            '/duplicate/{etc}/123' => [TestController::class, 'thingEtc'],
-            '/php8/*/only' => [TestController::class, 'eightOnly'],
-            '/php8/another' => [TestController::class, 'eightAnother'],
-            '/php8/repeated' => [TestController::class, 'eightAnother'],
+            'GET /test' => [AttrTestController::class, 'actionTest'],
+            '/thingo/{etc}' => [AttrTestController::class, 'thingEtc'],
+            '/duplicate/{etc}/123' => [AttrTestController::class, 'thingEtc'],
+            '/php8/*/only' => [AttrTestController::class, 'eightOnly'],
+            '/php8/another' => [AttrTestController::class, 'eightAnother'],
+            '/php8/repeated' => [AttrTestController::class, 'eightAnother'],
         ];
 
         $this->assertEquals($expected, $actual);
@@ -35,11 +35,11 @@ class AttributeRouteTest extends TestCase
      */
     public function testDocRoutes()
     {
-        $actual = Router::extractFromAttributes(TestController::class);
+        $actual = Router::extractFromAttributes(AttrTestController::class);
         $expected = [
-            'GET /test' => [TestController::class, 'actionTest'],
-            '/thingo/{etc}' => [TestController::class, 'thingEtc'],
-            '/duplicate/{etc}/123' => [TestController::class, 'thingEtc'],
+            'GET /test' => [AttrTestController::class, 'actionTest'],
+            '/thingo/{etc}' => [AttrTestController::class, 'thingEtc'],
+            '/duplicate/{etc}/123' => [AttrTestController::class, 'thingEtc'],
         ];
 
         $this->assertEquals($expected, $actual);
