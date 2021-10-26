@@ -127,30 +127,40 @@ abstract class Router
      */
     public function load(array $routes)
     {
-        $new_routes = array_diff_key($routes, $this->routes);
-        $class_routes = [];
+        $new_routes = [];
 
         // If enabled, the target can be a class. From this we extract
         // routes via attributes and/or namespaces.
-        if ($this->config->extract) {
-            foreach ($new_routes as $rule => $target) {
+        foreach ($routes as $rule => $target) {
 
-                // Only parse objects + class strings.
-                if (!is_string($target) or !is_object($target)) continue;
-                if (!class_exists($target)) continue;
+            // Duplicate route, skip it.
+            if (array_key_exists($rule, $this->routes)) {
+                continue;
+            }
 
+            // Parse routes from objects + class strings.
+            if (
+                $this->config->extract
+                and is_numeric($rule)
+                and (is_string($target) or is_object($target))
+                and class_exists($target)
+            ) {
                 if ($this->config->extract & self::EXTRACT_NAMESPACES) {
-                    self::addFromNamespaces($class_routes, $target);
+                    self::addFromNamespaces($new_routes, $target);
                 }
 
                 if ($this->config->extract & self::EXTRACT_ATTRIBUTES) {
-                    self::addFromAttributes($class_routes, $target);
+                    self::addFromAttributes($new_routes, $target);
                 }
-
-                unset($new_routes[$rule]);
             }
-
-            $new_routes = array_merge($new_routes, $class_routes);
+            // Skip invalid numeric rules.
+            // TODO or throw an error..?
+            else if (is_numeric($rule)) {
+                continue;
+            }
+            else {
+                $new_routes[$rule] = $target;
+            }
         }
 
         $this->routes = array_merge($this->routes, $new_routes);
