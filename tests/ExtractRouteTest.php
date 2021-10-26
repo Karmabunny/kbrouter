@@ -14,12 +14,6 @@ use PHPUnit\Framework\TestCase;
 class ExtractRouteTest extends TestCase
 {
 
-    const ROUTES = [
-        'GET /a/test/{route}' => 'hi there',
-        'PUT /another' => 'senior kenobi',
-    ];
-
-
     public function testExtractConfig()
     {
         $config = new RouterConfig([ 'extract' => null ]);
@@ -49,19 +43,40 @@ class ExtractRouteTest extends TestCase
         $config = new RouterConfig([ 'extract' => Router::EXTRACT_ALL ]);
         $this->assertEquals(Router::EXTRACT_ALL, $config->extract);
         $this->assertContains('ACTION', $config->methods);
+
+        // Bad config - convert must be paired with mode_regex
+        $config = new RouterConfig([
+            'extract' => Router::EXTRACT_NAMESPACES | Router::EXTRACT_CONVERT_REGEX,
+            'mode' => Router::MODE_SINGLE,
+        ]);
+
+        $this->assertEquals(Router::MODE_SINGLE, $config->mode);
+        $this->assertTrue((bool) ($config->extract & Router::EXTRACT_NAMESPACES));
+        $this->assertFalse((bool) ($config->extract & Router::EXTRACT_CONVERT_REGEX));
+        $this->assertContains('ACTION', $config->methods);
+
+        // Good config.
+        $config = new RouterConfig([
+            'extract' => Router::EXTRACT_NAMESPACES | Router::EXTRACT_CONVERT_REGEX,
+            'mode' => Router::MODE_REGEX,
+        ]);
+        $this->assertEquals(Router::MODE_REGEX, $config->mode);
+        $this->assertTrue((bool) ($config->extract & Router::EXTRACT_NAMESPACES));
+        $this->assertTrue((bool) ($config->extract & Router::EXTRACT_CONVERT_REGEX));
     }
 
 
     public function testExtractNone()
     {
-        $routes = self::ROUTES;
-        $routes[] = NsTestController::class;
-        $routes[] = AttrTestController::class;
-
         $router = Router::create([
             'extract' => Router::EXTRACT_NONE,
         ]);
-        $router->load($routes);
+        $router->load([
+            'GET /a/test/{route}' => 'hi there',
+            'PUT /another' => 'senior kenobi',
+            NsTestController::class,
+            AttrTestController::class,
+        ]);
 
         $this->assertCount(2, $router->routes);
     }
@@ -69,13 +84,14 @@ class ExtractRouteTest extends TestCase
 
     public function testExtractNamespaces()
     {
-        $routes = self::ROUTES;
-        $routes[] = NsTestController::class;
-
         $router = Router::create([
             'extract' => Router::EXTRACT_NAMESPACES,
         ]);
-        $router->load($routes);
+        $router->load([
+            'GET /a/test/{route}' => 'hi there',
+            'PUT /another' => 'senior kenobi',
+            NsTestController::class,
+        ]);
 
         $this->assertCount(8, $router->routes);
 
@@ -96,15 +112,17 @@ class ExtractRouteTest extends TestCase
         $this->assertEquals([NsTestController::class, 'test'], $action->target);
     }
 
+
     public function testExtractAttributes()
     {
-        $routes = self::ROUTES;
-        $routes[] = AttrTestController::class;
-
         $router = Router::create([
             'extract' => Router::EXTRACT_ATTRIBUTES,
         ]);
-        $router->load($routes);
+        $router->load([
+            'GET /a/test/{route}' => 'hi there',
+            'PUT /another' => 'senior kenobi',
+            AttrTestController::class,
+        ]);
 
         if (PHP_VERSION_ID >= 80000) {
             $this->assertCount(8, $router->routes);
@@ -136,14 +154,15 @@ class ExtractRouteTest extends TestCase
 
     public function testExtractAll()
     {
-        $routes = self::ROUTES;
-        $routes[] = AttrTestController::class;
-        $routes[] = NsTestController::class;
-
         $router = Router::create([
             'extract' => 'all',
         ]);
-        $router->load($routes);
+        $router->load([
+            'GET /a/test/{route}' => 'hi there',
+            'PUT /another' => 'senior kenobi',
+            AttrTestController::class,
+            NsTestController::class,
+        ]);
 
         // static.
         $count = 2;
@@ -163,5 +182,70 @@ class ExtractRouteTest extends TestCase
         $count += 4;
 
         $this->assertCount($count, $router->routes);
+    }
+
+
+    public function testConvert()
+    {
+        $routes = [
+            '/a/test/([0-9]+)' => 'regex number',
+            '/another/([^/]+)' => 'regex segment',
+            AttrTestController::class,
+            NsTestController::class,
+        ];
+
+        $router = Router::create([
+            'extract' => Router::EXTRACT_ALL | Router::EXTRACT_CONVERT_REGEX,
+            'mode' => Router::MODE_REGEX,
+        ]);
+
+        $router->load($routes);
+
+        $action = $router->find('GET', '/a/test/abc');
+        $this->assertNull($action);
+
+        $action = $router->find('GET', '/a/test/1234');
+        $this->assertNotNull($action);
+        $this->assertEquals('regex number', $action->target);
+
+        $action = $router->find('POST', '/another/blah/blah/1234');
+        $this->assertNull($action);
+
+        $action = $router->find('POST', '/another/blah-blah-1234');
+        $this->assertNotNull($action);
+        $this->assertEquals('regex segment', $action->target);
+
+        // Namespaces.
+        $action = $router->find('ACTION', '/kbtests/ns-test/thing-etc/abc/123/bad');
+        $this->assertNull($action);
+
+        $action = $router->find('ACTION', '/kbtests/ns-test/thing-etc/abc/123');
+        $this->assertNotNull($action);
+        $this->assertEquals([NsTestController::class, 'thingEtc'], $action->target);
+
+        $action = $router->find('ACTION', '/kbtests/variadic');
+        $this->assertNull($action);
+
+        $action = $router->find('ACTION', '/kbtests/bad-argument/abc');
+        $this->assertNull($action);
+
+        $action = $router->find('ACTION', '/kbtests/private-method');
+        $this->assertNull($action);
+
+        // Attributes.
+        $action = $router->find('GET', '/thingo/123-abc/bad');
+        $this->assertNull($action);
+
+        $action = $router->find('GET', '/thingo/123-ok');
+        $this->assertNotNull($action);
+        $this->assertEquals([AttrTestController::class, 'thingEtc'], $action->target);
+
+        // Ns from attribute controller.
+        $action = $router->find('GET', '/kbtests/attr-test/thing-etc/blah');
+        $this->assertNull($action);
+
+        $action = $router->find('ACTION', '/kbtests/attr-test/thing-etc/blah');
+        $this->assertNotNull($action);
+        $this->assertEquals([AttrTestController::class, 'thingEtc'], $action->target);
     }
 }
