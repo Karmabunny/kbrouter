@@ -106,18 +106,12 @@ class RouterSingleMode extends Router
      *
      * Wildcards `*` are converted to `'.+?'`.
      *
-     * @param string $rule Route pattern
-     * @return string Regex pattern
+     * @param string $rule
+     * @return string
      */
-    public function expandRule(string $rule): string
+    protected function expandRule(string $rule): string
     {
-        // Escape and swap out in the patterns.
-        $pattern = preg_quote($rule, '!');
-        $pattern = preg_replace(
-            [self::RULE_TEMPLATE, self::RULE_WILDCARD],
-            [self::PATTERN_NAMED, self::PATTERN_WILD],
-            $pattern
-        );
+        $pattern = self::convertRuleToPattern($rule);
 
         // If no existing method, add an ANY match.
         $methods = implode('|', $this->config->methods);
@@ -134,4 +128,24 @@ class RouterSingleMode extends Router
         return $pattern;
     }
 
+
+    /**
+     * Convert rule patterns to a regex. This only performs the argument swaps.
+     * Any methods, flags, etc - are handled elsewhere.
+     *
+     * @param string $rule Route pattern
+     * @return string Regex pattern
+     */
+    public static function convertRuleToPattern(string $rule): string
+    {
+        // Escape and swap out in the patterns.
+        $pattern = preg_quote($rule, '!');
+        $pattern = preg_replace(
+            [self::RULE_TEMPLATE, self::RULE_WILDCARD],
+            [self::PATTERN_NAMED, self::PATTERN_WILD],
+            $pattern
+        );
+
+        return $pattern;
+    }
 }

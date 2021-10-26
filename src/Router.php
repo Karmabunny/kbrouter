@@ -49,6 +49,7 @@ abstract class Router
     const EXTRACT_NAMESPACES = 1;
     const EXTRACT_ATTRIBUTES = 2;
     const EXTRACT_ALL = 3;
+    const EXTRACT_CONVERT_REGEX = 128;
 
     /**
      * Match for rule variables like `{var}`, after `preg_quote`.
@@ -128,6 +129,7 @@ abstract class Router
     public function load(array $routes)
     {
         $new_routes = [];
+        $class_routes = [];
 
         // If enabled, the target can be a class. From this we extract
         // routes via attributes and/or namespaces.
@@ -146,11 +148,11 @@ abstract class Router
                 and class_exists($target)
             ) {
                 if ($this->config->extract & self::EXTRACT_NAMESPACES) {
-                    self::addFromNamespaces($new_routes, $target);
+                    self::addFromNamespaces($class_routes, $target);
                 }
 
                 if ($this->config->extract & self::EXTRACT_ATTRIBUTES) {
-                    self::addFromAttributes($new_routes, $target);
+                    self::addFromAttributes($class_routes, $target);
                 }
             }
             // Skip invalid numeric rules.
@@ -161,6 +163,18 @@ abstract class Router
             else {
                 $new_routes[$rule] = $target;
             }
+        }
+
+        // Convert class rules into patterns.
+        if ($this->config->extract & self::EXTRACT_CONVERT_REGEX) {
+            foreach ($class_routes as $rule => $target) {
+                $pattern = RouterSingleMode::convertRuleToPattern($rule);
+                $new_routes[$pattern] = $target;
+            }
+        }
+        // Or not.
+        else {
+            $new_routes = array_merge($new_routes, $class_routes);
         }
 
         $this->routes = array_merge($this->routes, $new_routes);

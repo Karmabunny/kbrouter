@@ -91,5 +91,13 @@ class RouterConfig
         if ($this->extract & Router::EXTRACT_NAMESPACES) {
             $this->methods[] = 'ACTION';
         }
+
+        // Protect against bad configs.
+        if (
+            ($this->extract & Router::EXTRACT_CONVERT_REGEX)
+            and $this->mode != Router::MODE_REGEX
+        ) {
+            $this->extract ^= Router::EXTRACT_CONVERT_REGEX;
+        }
     }
 }

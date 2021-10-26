@@ -57,7 +57,7 @@ class RouterRegexMode extends Router
      * @param string $pattern Route pattern
      * @return string Regex pattern
      */
-    private function expandRule(string $pattern): string
+    protected function expandRule(string $pattern): string
     {
         $methods = implode('|', $this->config->methods);
 
