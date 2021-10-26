@@ -74,9 +74,11 @@ class Action
         if (count($this->target) != 2) return false;
 
         [$class, $method] = $this->target;
-        if (is_subclass_of($class, $controller)) return false;
 
-        return true;
+        return (
+            $class === $controller or
+            is_subclass_of($class, $controller)
+        );
     }
 
 
