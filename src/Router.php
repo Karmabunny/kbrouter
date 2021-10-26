@@ -107,11 +107,13 @@ abstract class Router
      * Load routes.
      *
      * @param array $routes [ rule => target ]
-     * @return void
+     * @return array [ rule => target ] diff of new routes
      */
     public function load(array $routes)
     {
-        $this->routes = array_merge($this->routes, $routes);
+        $new_routes = array_diff_key($routes, $this->routes);
+        $this->routes = array_merge($this->routes, $new_routes);
+        return $new_routes;
     }
 
 

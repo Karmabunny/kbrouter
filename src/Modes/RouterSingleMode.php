@@ -71,14 +71,30 @@ class RouterSingleMode extends Router
     }
 
 
+    /** @inheritdoc */
     public function load(array $routes)
     {
-        parent::load($routes);
+        $routes = parent::load($routes);
+        if ($routes) {
+            $this->compile($routes);
+        }
+    }
+
+
+    /**
+     * Create regex patterns from the route rules.
+     *
+     * @param array $routes
+     * @return void
+     */
+    public function compile(array $routes)
+    {
         foreach ($routes as $rule => $target) {
             $pattern = $this->expandRule($rule);
             $this->patterns[$pattern] = [$rule, $target];
         }
     }
+
 
     /**
      * Expand route patterns into full regex patterns.
