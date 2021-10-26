@@ -3,7 +3,7 @@
 namespace kbtests\controllers;
 
 
-class NsTestController
+class NsTestController extends BaseController
 {
     public function test() {}
 

@@ -5,7 +5,7 @@ namespace kbtests\controllers;
 use karmabunny\router\Route;
 
 
-class AttrTestController
+class AttrTestController extends BaseController
 {
     /**
      * @route GET /test
