@@ -23,6 +23,19 @@ class RouterConfig
 
 
     /**
+     * Extract mode - to source routes from namespaces, attributes, both or none.
+     *
+     * - 'none' or 0
+     * - 'namespaces' or 1
+     * - 'attributes' or 2
+     * - 'both' or 3
+     *
+     * @var int
+     */
+    public $extract = Router::EXTRACT_ALL;
+
+
+    /**
      * Case sensitivity. By default - insensitive.
      *
      * @var bool
@@ -55,6 +68,22 @@ class RouterConfig
     {
         foreach ($config as $key => $value) {
             $this->$key = $value;
+        }
+
+        // Convert strings into a bitwise mask.
+        if (is_string($this->extract)) {
+            static $REMAP = [
+                'namespaces' => Router::EXTRACT_NAMESPACES,
+                'attributes' => Router::EXTRACT_ATTRIBUTES,
+                'all' => Router::EXTRACT_ALL,
+                'none' => Router::EXTRACT_NONE,
+            ];
+
+            $this->extract = $REMAP[$this->extract] ?? null;
+        }
+
+        if (!$this->extract) {
+            $this->extract = Router::EXTRACT_NONE;
         }
     }
 }

@@ -34,6 +34,11 @@ abstract class Router
         self::MODE_REGEX => RouterRegexMode::class,
     ];
 
+    const EXTRACT_NONE = 0;
+    const EXTRACT_NAMESPACES = 1;
+    const EXTRACT_ATTRIBUTES = 2;
+    const EXTRACT_ALL = 3;
+
     /**
      * Match for rule variables like `{var}`, after `preg_quote`.
      *
@@ -112,6 +117,31 @@ abstract class Router
     public function load(array $routes)
     {
         $new_routes = array_diff_key($routes, $this->routes);
+        $class_routes = [];
+
+        // If enabled, the target can be a class. From this we extract
+        // routes via attributes and/or namespaces.
+        if ($this->config->extract) {
+            foreach ($new_routes as $rule => $target) {
+
+                // Only parse objects + class strings.
+                if (!is_string($target) or !is_object($target)) continue;
+                if (!class_exists($target)) continue;
+
+                if ($this->config->extract & self::EXTRACT_NAMESPACES) {
+                    self::addFromNamespaces($class_routes, $target);
+                }
+
+                if ($this->config->extract & self::EXTRACT_ATTRIBUTES) {
+                    self::addFromAttributes($class_routes, $target);
+                }
+
+                unset($new_routes[$rule]);
+            }
+
+            $new_routes = array_merge($new_routes, $class_routes);
+        }
+
         $this->routes = array_merge($this->routes, $new_routes);
         return $new_routes;
     }
