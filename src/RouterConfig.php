@@ -48,7 +48,7 @@ class RouterConfig
      *
      * @var string[]
      */
-    public $methods = ['HEAD', 'GET', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE'];
+    public $methods = Router::METHODS;
 
 
     /**
@@ -84,6 +84,12 @@ class RouterConfig
 
         if (!$this->extract) {
             $this->extract = Router::EXTRACT_NONE;
+        }
+
+        // Special case for namespace extracts.
+        // These use ACTION methods, so make sure that's registered.
+        if ($this->extract & Router::EXTRACT_NAMESPACES) {
+            $this->methods[] = 'ACTION';
         }
     }
 }

@@ -24,6 +24,17 @@ use ReflectionUnionType;
 abstract class Router
 {
 
+    /** Some standard default methods. */
+    const METHODS = [
+        'HEAD',
+        'GET',
+        'OPTIONS',
+        'POST',
+        'PUT',
+        'PATCH',
+        'DELETE',
+    ];
+
     const MODE_CHUNKED = 'chunked';
     const MODE_SINGLE = 'single';
     const MODE_REGEX = 'regex';
