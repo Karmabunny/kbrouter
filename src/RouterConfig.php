@@ -37,7 +37,7 @@ class RouterConfig
      *
      * @var int
      */
-    public $extract = Router::EXTRACT_ALL | Router::EXTRACT_WITH_PREFIXES;
+    public $extract = Router::EXTRACT_ATTRIBUTES | Router::EXTRACT_WITH_PREFIXES;
 
 
     /**
