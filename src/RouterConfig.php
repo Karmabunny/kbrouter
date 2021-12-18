@@ -33,6 +33,7 @@ class RouterConfig
      * Additional flags:
      * - 'convert_regex' (128) convert extracted rule patterns to regex
      * - 'with_prefixes' (256) add prefixes to extracted routes
+     * - 'short_namespaces' (512) only use controller/method in the rule path
      *
      * @var int
      */

@@ -51,6 +51,7 @@ abstract class Router
     const EXTRACT_ALL = 3;
     const EXTRACT_CONVERT_REGEX = 128;
     const EXTRACT_WITH_PREFIXES = 256;
+    const EXTRACT_SHORT_NAMESPACES = 512;
 
     /**
      * Match for rule variables like `{var}`, after `preg_quote`.
@@ -449,6 +450,11 @@ abstract class Router
             $prefix = rtrim($prefix, '/') . '/';
         }
 
+        $rule_class = $class;
+        if ($this->config->extract & Router::EXTRACT_SHORT_NAMESPACES) {
+            $rule_class = $reflect->getShortName();
+        }
+
         foreach ($methods as $method) {
             $name = $method->getShortName();
 
@@ -497,7 +503,7 @@ abstract class Router
 
             // Target + initial rule.
             $target = [$class, $name];
-            $rule = str_replace('\\', '/', implode('/', $target));
+            $rule = str_replace('\\', '/', implode('/', [$rule_class, $name]));
 
             // Convert camel case to kebab case.
             $rule = preg_replace_callback(
@@ -508,13 +514,17 @@ abstract class Router
                 $rule
             );
 
-            // Clean out weird artifacts + some common stuff.
+            $rule = '/' . $rule;
+
+            // Clean out weird artifacts.
             $rule = str_replace('/-', '/', $rule);
             $rule = str_replace('_', '-', $rule);
+
+            // Custom rules.
             $rule = $this->editNamespaceRule($rule);
 
             // Add the prefix.
-            $rule = trim($prefix . $rule, '/');
+            $rule = preg_replace('|/+|', '/', $prefix . $rule);
 
             // Tack on the arguments.
             if ($args) {
@@ -522,7 +532,7 @@ abstract class Router
             }
 
             // Nice.
-            $routes["ACTION /{$rule}"] = $target;
+            $routes["ACTION {$rule}"] = $target;
         }
 
         return $routes;

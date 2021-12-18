@@ -121,6 +121,31 @@ class ExtractRouteTest extends TestCase
     }
 
 
+    public function testExtractShortNamespaces()
+    {
+        $router = Router::create([
+            'extract' => Router::EXTRACT_NAMESPACES | Router::EXTRACT_SHORT_NAMESPACES | Router::EXTRACT_WITH_PREFIXES,
+        ]);
+        $router->load([
+            NsTestController::class,
+            '/prefix' => NsTestController::class,
+        ]);
+
+        $this->assertCount(12, $router->routes);
+
+        $action = $router->find('ACTION', '/kbtests/ns-test/test');
+        $this->assertNull($action);
+
+        $action = $router->find('ACTION', '/ns-test/test');
+        $this->assertNotNull($action);
+        $this->assertEquals([NsTestController::class, 'test'], $action->target);
+
+        $action = $router->find('ACTION', '/prefix/ns-test/test');
+        $this->assertNotNull($action);
+        $this->assertEquals([NsTestController::class, 'test'], $action->target);
+    }
+
+
     public function testExtractAttributes()
     {
         $router = Router::create([
