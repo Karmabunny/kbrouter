@@ -16,7 +16,8 @@ class AttributeRouteTest extends TestCase
      */
     public function testAttributeRoutes()
     {
-        $actual = Router::extractFromAttributes(AttrTestController::class);
+        $router = Router::create();
+        $actual = $router->extractFromAttributes(AttrTestController::class);
         $expected = [
             'GET /test' => [AttrTestController::class, 'actionTest'],
             '/thingo/{etc}' => [AttrTestController::class, 'thingEtc'],
@@ -32,7 +33,8 @@ class AttributeRouteTest extends TestCase
 
     public function testDocRoutes()
     {
-        $actual = Router::extractFromAttributes(AttrTestController::class);
+        $router = Router::create();
+        $actual = $router->extractFromAttributes(AttrTestController::class);
         $expected = [
             'GET /test' => [AttrTestController::class, 'actionTest'],
             '/thingo/{etc}' => [AttrTestController::class, 'thingEtc'],

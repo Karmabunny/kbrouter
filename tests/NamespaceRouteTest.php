@@ -14,7 +14,8 @@ class NamespaceRouteTest extends TestCase
 
     public function testRoutes()
     {
-        $actual = Router::extractFromNamespaces(NsTestController::class);
+        $router = Router::create();
+        $actual = $router->extractFromNamespaces(NsTestController::class);
 
         $expected = [
             'ACTION /kbtests/ns-test/test' => [NsTestController::class, 'test'],

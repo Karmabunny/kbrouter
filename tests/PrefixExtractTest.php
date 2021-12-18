@@ -15,7 +15,8 @@ class PrefixExtractTest extends TestCase
 
     public function testPrefixDocs()
     {
-        $actual = Router::extractFromAttributes(AttrTestController::class, 'prefix');
+        $router = Router::create();
+        $actual = $router->extractFromAttributes(AttrTestController::class, 'prefix');
 
         $expected = [
             'GET prefix/test' => [AttrTestController::class, 'actionTest'],
@@ -30,7 +31,8 @@ class PrefixExtractTest extends TestCase
     public function testPrefixDocsAgain()
     {
         // This time with prefix and suffix slashes.
-        $actual = Router::extractFromAttributes(AttrTestController::class, '/prefix/');
+        $router = Router::create();
+        $actual = $router->extractFromAttributes(AttrTestController::class, '/prefix/');
 
         $expected = [
             'GET /prefix/test' => [AttrTestController::class, 'actionTest'],
@@ -44,7 +46,8 @@ class PrefixExtractTest extends TestCase
 
     public function testPrefixNamespaces()
     {
-        $actual = Router::extractFromNamespaces(NsTestController::class, '/prefix/');
+        $router = Router::create();
+        $actual = $router->extractFromNamespaces(NsTestController::class, '/prefix/');
         $actual = [ key($actual) => current($actual) ];
 
         $expected = [
@@ -58,7 +61,8 @@ class PrefixExtractTest extends TestCase
     public function testPrefixNamespacesAgain()
     {
         // This time with no trailing slash.
-        $actual = Router::extractFromNamespaces(NsTestController::class, '/another');
+        $router = Router::create();
+        $actual = $router->extractFromNamespaces(NsTestController::class, '/another');
         $actual = [ key($actual) => current($actual) ];
 
         $expected = [

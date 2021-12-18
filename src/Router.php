@@ -158,11 +158,19 @@ abstract class Router
                 }
 
                 if ($this->config->extract & self::EXTRACT_NAMESPACES) {
-                    self::addFromNamespaces($class_routes, $target, $prefix);
+                    $auto = $this->extractFromNamespaces($target, $prefix);
+
+                    foreach ($auto as $sub_rule => $sub_target) {
+                        $class_routes[$sub_rule] = $sub_target;
+                    }
                 }
 
                 if ($this->config->extract & self::EXTRACT_ATTRIBUTES) {
-                    self::addFromAttributes($class_routes, $target, $prefix);
+                    $auto = $this->extractFromAttributes($target, $prefix);
+
+                    foreach ($auto as $sub_rule => $sub_target) {
+                        $class_routes[$sub_rule] = $sub_target;
+                    }
                 }
 
                 continue;
@@ -215,7 +223,7 @@ abstract class Router
      */
     public function loadAttributes($class, $prefix = '')
     {
-        $this->load(self::extractFromAttributes($class));
+        $this->load($this->extractFromAttributes($class));
     }
 
 
@@ -227,7 +235,7 @@ abstract class Router
      */
     public function loadNamespaces($class, $prefix = '')
     {
-        $this->load(self::extractFromNamespaces($class));
+        $this->load($this->extractFromNamespaces($class));
     }
 
 
@@ -341,29 +349,6 @@ abstract class Router
 
 
     /**
-     * Find all the attribute + namespace routes on a target object/class.
-     *
-     * @param string|object $class
-     * @return string[] [ rule => target ]
-     * @throws ReflectionException
-     */
-    public static function extractRoutes($class): array
-    {
-        $routes = [];
-
-        foreach (self::extractFromAttributes($class) as $rule => $target) {
-            $routes[$rule] = $target;
-        }
-
-        foreach (self::extractFromNamespaces($class) as $rule => $target) {
-            $routes[$rule] = $target;
-        }
-
-        return $routes;
-    }
-
-
-    /**
      * Find all the attribute routes on a target object/class.
      *
      * An attribute route is a PHP8 attribute or a @route doc comment.
@@ -373,7 +358,7 @@ abstract class Router
      * @return array [ rule => target ]
      * @throws ReflectionException
      */
-    public static function extractFromAttributes($class, $prefix = ''): array
+    public function extractFromAttributes($class, $prefix = ''): array
     {
         $reflect = new ReflectionClass($class);
         $methods = $reflect->getMethods(ReflectionMethod::IS_PUBLIC);
@@ -471,7 +456,7 @@ abstract class Router
      * @return array [ rule => target ]
      * @throws ReflectionException
      */
-    public static function extractFromNamespaces($class, $prefix = ''): array
+    public function extractFromNamespaces($class, $prefix = ''): array
     {
         $reflect = new ReflectionClass($class);
         $methods = $reflect->getMethods(ReflectionMethod::IS_PUBLIC);
@@ -561,68 +546,4 @@ abstract class Router
         return $routes;
     }
 
-
-    /**
-     * Add routes discovered on the target class/object to a route config.
-     *
-     * This finds both attribute + namespace routes.
-     *
-     * Use this to build a route table and then `load()` it into a router.
-     * Or instead load the class routes directly into the router with `loadFrom()`.
-     *
-     * @param array $routes [ rule => target ]
-     * @param string|object $class
-     * @param string $prefix
-     * @return void
-     * @throws ReflectionException
-     */
-    public static function addAutoRoutes(array &$routes, $class, $prefix = '')
-    {
-        self::addFromAttributes($routes, $class, $prefix);
-        self::addFromNamespaces($routes, $class, $prefix);
-    }
-
-
-    /**
-     * Add attribute routes from the target class/object.
-     *
-     * Use this to build a route table and then `load()` it into a router.
-     * Or instead load the class routes directly into the router with `loadFrom()`.
-     *
-     * @param array $routes [ rule => target ]
-     * @param string|object $class
-     * * @param string $prefix
-     * @return void
-     * @throws ReflectionException
-     */
-    public static function addFromAttributes(array &$routes, $class, $prefix = '')
-    {
-        $auto = self::extractFromAttributes($class, $prefix);
-
-        foreach ($auto as $rule => $target) {
-            $routes[$rule] = $target;
-        }
-    }
-
-
-    /**
-     * Add namespace routes from the target class/object.
-     *
-     * Use this to build a route table and then `load()` it into a router.
-     * Or instead load the class routes directly into the router with `loadFrom()`.
-     *
-     * @param array $routes [ rule => target ]
-     * @param string|object $class
-     * @param string $prefix
-     * @return void
-     * @throws ReflectionException
-     */
-    public static function addFromNamespaces(array &$routes, $class, $prefix = '')
-    {
-        $auto = self::extractFromNamespaces($class, $prefix);
-
-        foreach ($auto as $rule => $target) {
-            $routes[$rule] = $target;
-        }
-    }
 }
