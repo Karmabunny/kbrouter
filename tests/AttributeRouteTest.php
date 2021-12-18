@@ -30,9 +30,6 @@ class AttributeRouteTest extends TestCase
     }
 
 
-    /**
-     * @requires PHP < 8.0
-     */
     public function testDocRoutes()
     {
         $actual = Router::extractFromAttributes(AttrTestController::class);

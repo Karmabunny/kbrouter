@@ -29,7 +29,7 @@ class ExtractRouteTest extends TestCase
         $this->assertNotContains('ACTION', $config->methods);
 
         $config = new RouterConfig([ 'extract' => 'all' ]);
-        $this->assertEquals(Router::EXTRACT_ALL, $config->extract);
+        $this->assertEquals(Router::EXTRACT_ALL | Router::EXTRACT_WITH_PREFIXES, $config->extract);
         $this->assertContains('ACTION', $config->methods);
 
         $config = new RouterConfig([ 'extract' => Router::EXTRACT_NAMESPACES ]);
@@ -91,9 +91,10 @@ class ExtractRouteTest extends TestCase
             'GET /a/test/{route}' => 'hi there',
             'PUT /another' => 'senior kenobi',
             NsTestController::class,
+            '/prefix' => NsTestController::class,
         ]);
 
-        $this->assertCount(8, $router->routes);
+        $this->assertCount(9, $router->routes);
 
         $action = $router->find('GET', '/a/test/one');
         $this->assertNotNull($action);
@@ -110,6 +111,13 @@ class ExtractRouteTest extends TestCase
         $action = $router->find('ACTION', '/kbtests/ns-test/test');
         $this->assertNotNull($action);
         $this->assertEquals([NsTestController::class, 'test'], $action->target);
+
+        // This is the 'prefix' rule not being prefixed.
+        // Because it's not enabled with EXTRACT_WITH_PREFIXES.
+        $action = $router->find('GET', '/prefix');
+        $this->assertNotNull($action);
+        $this->assertEquals(NsTestController::class, $action->target);
+
     }
 
 
@@ -122,13 +130,14 @@ class ExtractRouteTest extends TestCase
             'GET /a/test/{route}' => 'hi there',
             'PUT /another' => 'senior kenobi',
             AttrTestController::class,
+            '/prefix' => AttrTestController::class,
         ]);
 
         if (PHP_VERSION_ID >= 80000) {
-            $this->assertCount(8, $router->routes);
+            $this->assertCount(9, $router->routes);
         }
         else {
-            $this->assertCount(5, $router->routes);
+            $this->assertCount(6, $router->routes);
         }
 
         $action = $router->find('GET', '/a/test/one');
@@ -149,13 +158,19 @@ class ExtractRouteTest extends TestCase
         $action = $router->find('DELETE', '/thingo/blahblahblah');
         $this->assertNotNull($action);
         $this->assertEquals([AttrTestController::class, 'thingEtc'], $action->target);
+
+        // This is the 'prefix' rule not being prefixed.
+        // Because it's not enabled with EXTRACT_WITH_PREFIXES.
+        $action = $router->find('GET', '/prefix');
+        $this->assertNotNull($action);
+        $this->assertEquals(AttrTestController::class, $action->target);
     }
 
 
     public function testExtractAll()
     {
         $router = Router::create([
-            'extract' => 'all',
+            'extract' => Router::EXTRACT_ALL,
         ]);
         $router->load([
             'GET /a/test/{route}' => 'hi there',
@@ -182,6 +197,63 @@ class ExtractRouteTest extends TestCase
         $count += 4;
 
         $this->assertCount($count, $router->routes);
+    }
+
+
+    public function testExtractWithPrefixes()
+    {
+        $router = Router::create([
+            'extract' => 'all',
+        ]);
+        $router->load([
+            'GET /a/test/{route}' => 'hi there',
+            'PUT /another' => 'senior kenobi',
+            AttrTestController::class,
+            NsTestController::class,
+            '/prefix1' => AttrTestController::class,
+            '/prefix2' => NsTestController::class,
+        ]);
+
+        // static.
+        $count = 2;
+
+        // attributes.
+        if (PHP_VERSION_ID >= 80000) {
+            $count += 6 * 2;
+        }
+        else {
+            $count += 3 * 2;
+        }
+
+        // namespaces, from ns-test.
+        $count += 6 * 2;
+
+        // namespaces, from attr-test.
+        $count += 4 * 2;
+
+        $this->assertCount($count, $router->routes);
+
+        $action = $router->find('GET', '/prefix1');
+        $this->assertNull($action);
+
+        $action = $router->find('GET', '/prefix2');
+        $this->assertNull($action);
+
+        $action = $router->find('GET', '/prefix1/test');
+        $this->assertNotNull($action);
+        $this->assertEquals([AttrTestController::class, 'actionTest'], $action->target);
+
+        $action = $router->find('GET', '/prefix1/thingo/123');
+        $this->assertNotNull($action);
+        $this->assertEquals([AttrTestController::class, 'thingEtc'], $action->target);
+
+        $action = $router->find('ACTION', '/prefix1/kbtests/attr-test/thing-etc/456');
+        $this->assertNotNull($action);
+        $this->assertEquals([AttrTestController::class, 'thingEtc'], $action->target);
+
+        $action = $router->find('ACTION', '/prefix2/kbtests/ns-test/test');
+        $this->assertNotNull($action);
+        $this->assertEquals([NsTestController::class, 'test'], $action->target);
     }
 
 

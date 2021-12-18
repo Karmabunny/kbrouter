@@ -50,6 +50,7 @@ abstract class Router
     const EXTRACT_ATTRIBUTES = 2;
     const EXTRACT_ALL = 3;
     const EXTRACT_CONVERT_REGEX = 128;
+    const EXTRACT_WITH_PREFIXES = 256;
 
     /**
      * Match for rule variables like `{var}`, after `preg_quote`.
@@ -142,27 +143,38 @@ abstract class Router
 
             // Parse routes from objects + class strings.
             if (
-                $this->config->extract
-                and is_numeric($rule)
+                ($this->config->extract & self::EXTRACT_ALL)
                 and (is_string($target) or is_object($target))
                 and class_exists($target)
+                and (
+                    ($this->config->extract & self::EXTRACT_WITH_PREFIXES)
+                    or is_numeric($rule)
+                )
             ) {
+                $prefix = '';
+
+                if (is_string($rule)) {
+                    $prefix = $rule;
+                }
+
                 if ($this->config->extract & self::EXTRACT_NAMESPACES) {
-                    self::addFromNamespaces($class_routes, $target);
+                    self::addFromNamespaces($class_routes, $target, $prefix);
                 }
 
                 if ($this->config->extract & self::EXTRACT_ATTRIBUTES) {
-                    self::addFromAttributes($class_routes, $target);
+                    self::addFromAttributes($class_routes, $target, $prefix);
                 }
-            }
-            // Skip invalid numeric rules.
-            // TODO or throw an error..?
-            else if (is_numeric($rule)) {
+
                 continue;
             }
-            else {
-                $new_routes[$rule] = $target;
+
+            // Skip invalid numeric rules.
+            // TODO or throw an error..?
+            if (is_numeric($rule)) {
+                continue;
             }
+
+            $new_routes[$rule] = $target;
         }
 
         // Convert class rules into patterns.
@@ -188,10 +200,10 @@ abstract class Router
      * @param string|object $class
      * @return void
      */
-    public function loadFrom($class)
+    public function loadFrom($class, $prefix = '')
     {
-        $this->loadAttributes($class);
-        $this->loadNamespaces($class);
+        $this->loadAttributes($class, $prefix);
+        $this->loadNamespaces($class, $prefix);
     }
 
 
@@ -201,7 +213,7 @@ abstract class Router
      * @param string|object $class
      * @return void
      */
-    public function loadAttributes($class)
+    public function loadAttributes($class, $prefix = '')
     {
         $this->load(self::extractFromAttributes($class));
     }
@@ -213,7 +225,7 @@ abstract class Router
      * @param string|object $class
      * @return void
      */
-    public function loadNamespaces($class)
+    public function loadNamespaces($class, $prefix = '')
     {
         $this->load(self::extractFromNamespaces($class));
     }
@@ -357,13 +369,18 @@ abstract class Router
      * An attribute route is a PHP8 attribute or a @route doc comment.
      *
      * @param string|object $class
+     * @param string $prefix
      * @return array [ rule => target ]
      * @throws ReflectionException
      */
-    public static function extractFromAttributes($class): array
+    public static function extractFromAttributes($class, $prefix = ''): array
     {
         $reflect = new ReflectionClass($class);
         $methods = $reflect->getMethods(ReflectionMethod::IS_PUBLIC);
+
+        if ($prefix) {
+            $prefix = rtrim($prefix, '/') . '/';
+        }
 
         $routes = [];
 
@@ -379,7 +396,17 @@ abstract class Router
                 foreach ($attributes as $attribute) {
                     /** @var Route $route */
                     $route = $attribute->newInstance();
-                    $routes[$route->rule] = $target;
+                    $rule = explode(' ', $route->rule, 2);
+
+                    if (count($rule) == 2) {
+                        $rule[1] = $prefix . $rule[1];
+                    }
+                    else {
+                        $rule[0] = $prefix . $rule[0];
+                    }
+
+                    $rule = preg_replace('|/+|', '/', implode(' ', $rule));
+                    $routes[$rule] = $target;
                 }
             }
 
@@ -387,7 +414,17 @@ abstract class Router
             $docs = Route::parseDoc($method->getDocComment() ?: '');
 
             foreach ($docs as $doc) {
-                $routes[$doc->rule] = $target;
+                $rule = explode(' ', $doc->rule, 2);
+
+                if (count($rule) == 2) {
+                    $rule[1] = $prefix . $rule[1];
+                }
+                else {
+                    $rule[0] = $prefix . $rule[0];
+                }
+
+                $rule = preg_replace('|/+|', '/', implode(' ', $rule));
+                $routes[$rule] = $target;
             }
         }
 
@@ -430,15 +467,20 @@ abstract class Router
      * - arguments must be one of: string, int, float, mixed
      *
      * @param string|object $class
+     * @param string $prefix
      * @return array [ rule => target ]
      * @throws ReflectionException
      */
-    public static function extractFromNamespaces($class): array
+    public static function extractFromNamespaces($class, $prefix = ''): array
     {
         $reflect = new ReflectionClass($class);
         $methods = $reflect->getMethods(ReflectionMethod::IS_PUBLIC);
 
         $routes = [];
+
+        if ($prefix) {
+            $prefix = rtrim($prefix, '/') . '/';
+        }
 
         foreach ($methods as $method) {
             $name = $method->getShortName();
@@ -504,6 +546,9 @@ abstract class Router
             $rule = str_replace('_', '-', $rule);
             $rule = str_replace(static::$STRIP_ACTION_PATHS, '', $rule);
 
+            // Add the prefix.
+            $rule = trim($prefix . $rule, '/');
+
             // Tack on the arguments.
             if ($args) {
                 $rule .= '/' . implode('/', $args);
@@ -527,13 +572,14 @@ abstract class Router
      *
      * @param array $routes [ rule => target ]
      * @param string|object $class
+     * @param string $prefix
      * @return void
      * @throws ReflectionException
      */
-    public static function addAutoRoutes(array &$routes, $class)
+    public static function addAutoRoutes(array &$routes, $class, $prefix = '')
     {
-        self::addFromAttributes($routes, $class);
-        self::addFromNamespaces($routes, $class);
+        self::addFromAttributes($routes, $class, $prefix);
+        self::addFromNamespaces($routes, $class, $prefix);
     }
 
 
@@ -545,12 +591,13 @@ abstract class Router
      *
      * @param array $routes [ rule => target ]
      * @param string|object $class
+     * * @param string $prefix
      * @return void
      * @throws ReflectionException
      */
-    public static function addFromAttributes(array &$routes, $class)
+    public static function addFromAttributes(array &$routes, $class, $prefix = '')
     {
-        $auto = self::extractFromAttributes($class);
+        $auto = self::extractFromAttributes($class, $prefix);
 
         foreach ($auto as $rule => $target) {
             $routes[$rule] = $target;
@@ -566,12 +613,13 @@ abstract class Router
      *
      * @param array $routes [ rule => target ]
      * @param string|object $class
+     * @param string $prefix
      * @return void
      * @throws ReflectionException
      */
-    public static function addFromNamespaces(array &$routes, $class)
+    public static function addFromNamespaces(array &$routes, $class, $prefix = '')
     {
-        $auto = self::extractFromNamespaces($class);
+        $auto = self::extractFromNamespaces($class, $prefix);
 
         foreach ($auto as $rule => $target) {
             $routes[$rule] = $target;

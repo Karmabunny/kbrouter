@@ -25,14 +25,18 @@ class RouterConfig
     /**
      * Extract mode - to source routes from namespaces, attributes, both or none.
      *
-     * - 'none' or 0
-     * - 'namespaces' or 1
-     * - 'attributes' or 2
-     * - 'both' or 3
+     * - 'none' (0)
+     * - 'namespaces' (1) - convert 'ns\controller\method' into rule names
+     * - 'attributes' (2) - extract PHP8 attributes and @route comments
+     * - 'all' (3 + 256) - extract all routes + prefixes
+     *
+     * Additional flags:
+     * - 'convert_regex' (128) convert extracted rule patterns to regex
+     * - 'with_prefixes' (256) add prefixes to extracted routes
      *
      * @var int
      */
-    public $extract = Router::EXTRACT_ALL;
+    public $extract = Router::EXTRACT_ALL | Router::EXTRACT_WITH_PREFIXES;
 
 
     /**
@@ -75,7 +79,7 @@ class RouterConfig
             static $REMAP = [
                 'namespaces' => Router::EXTRACT_NAMESPACES,
                 'attributes' => Router::EXTRACT_ATTRIBUTES,
-                'all' => Router::EXTRACT_ALL,
+                'all' => Router::EXTRACT_ALL | Router::EXTRACT_WITH_PREFIXES,
                 'none' => Router::EXTRACT_NONE,
             ];
 
