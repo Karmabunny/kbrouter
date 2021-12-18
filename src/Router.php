@@ -60,24 +60,6 @@ abstract class Router
     const RULE_TEMPLATE = '!\\\{([a-z][a-z0-9_]*)\\\}!i';
 
 
-    /**
-     * Things to remove from namespace generated 'action' routes.
-     *
-     * Ah regrets, this should have been a config. But that would mean that
-     * extractFromNamespace() is non-static and it just gets messy from there on.
-     *
-     * @var string[]
-     */
-    static $STRIP_ACTION_PATHS = [
-        '/app',
-        '/core',
-        '/module',
-        '/bloom',
-        '/controllers',
-        '-controller',
-    ];
-
-
     /** @var array rule => target */
     public $routes = [];
 
@@ -529,7 +511,7 @@ abstract class Router
             // Clean out weird artifacts + some common stuff.
             $rule = str_replace('/-', '/', $rule);
             $rule = str_replace('_', '-', $rule);
-            $rule = str_replace(static::$STRIP_ACTION_PATHS, '', $rule);
+            $rule = $this->editNamespaceRule($rule);
 
             // Add the prefix.
             $rule = trim($prefix . $rule, '/');
@@ -546,4 +528,20 @@ abstract class Router
         return $routes;
     }
 
+
+    /**
+     * Call the user-configured edit namespace rule config.
+     *
+     * @param string $rule
+     * @return string
+     */
+    protected function editNamespaceRule(string $rule)
+    {
+        if ($fn = $this->config->edit_namespace_rule) {
+            return $fn($rule);
+        }
+        else {
+            return $rule;
+        }
+    }
 }

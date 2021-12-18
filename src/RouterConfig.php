@@ -64,6 +64,14 @@ class RouterConfig
 
 
     /**
+     * Use this the alter or clean the namespace rules.
+     *
+     * @var callable
+     */
+    public $edit_namespace_rule = [self::class, 'editNamespaceRule'];
+
+
+    /**
      * Build a config.
      *
      * @param array $config
@@ -103,5 +111,26 @@ class RouterConfig
         ) {
             $this->extract ^= Router::EXTRACT_CONVERT_REGEX;
         }
+    }
+
+
+    /**
+     * Default namespace rule cleaner method.
+     *
+     * @param string $rule
+     * @return string
+     */
+    public static function editNamespaceRule(string $rule)
+    {
+        static $remove = [
+            '/app',
+            '/core',
+            '/module',
+            '/bloom',
+            '/controllers',
+            '-controller',
+        ];
+
+        return str_replace($remove, '', $rule);
     }
 }
