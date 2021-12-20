@@ -19,6 +19,7 @@ class PrefixExtractTest extends TestCase
         $actual = $router->extractFromAttributes(AttrTestController::class, 'prefix');
 
         $expected = [
+            'GET prefix' => [AttrTestController::class, 'actionRoot'],
             'GET prefix/test' => [AttrTestController::class, 'actionTest'],
             'prefix/thingo/{etc}' => [AttrTestController::class, 'thingEtc'],
             'prefix/duplicate/{etc}/123' => [AttrTestController::class, 'thingEtc'],
@@ -35,6 +36,7 @@ class PrefixExtractTest extends TestCase
         $actual = $router->extractFromAttributes(AttrTestController::class, '/prefix/');
 
         $expected = [
+            'GET /prefix' => [AttrTestController::class, 'actionRoot'],
             'GET /prefix/test' => [AttrTestController::class, 'actionTest'],
             '/prefix/thingo/{etc}' => [AttrTestController::class, 'thingEtc'],
             '/prefix/duplicate/{etc}/123' => [AttrTestController::class, 'thingEtc'],

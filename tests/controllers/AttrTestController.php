@@ -8,6 +8,11 @@ use karmabunny\router\Route;
 class AttrTestController extends BaseController
 {
     /**
+     * @route GET /
+     */
+    public function actionRoot() {}
+
+    /**
      * @route GET /test
      */
     public function actionTest() {}
