@@ -34,6 +34,7 @@ class AttributeRouteTest extends TestCase
     {
         $actual = Router::extractFromAttributes(AttrTestController::class);
         $expected = [
+            'GET /' => [AttrTestController::class, 'actionRoot'],
             'GET /test' => [AttrTestController::class, 'actionTest'],
             '/thingo/{etc}' => [AttrTestController::class, 'thingEtc'],
             '/duplicate/{etc}/123' => [AttrTestController::class, 'thingEtc'],

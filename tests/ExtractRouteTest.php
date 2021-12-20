@@ -134,10 +134,10 @@ class ExtractRouteTest extends TestCase
         ]);
 
         if (PHP_VERSION_ID >= 80000) {
-            $this->assertCount(9, $router->routes);
+            $this->assertCount(10, $router->routes);
         }
         else {
-            $this->assertCount(6, $router->routes);
+            $this->assertCount(7, $router->routes);
         }
 
         $action = $router->find('GET', '/a/test/one');
@@ -184,17 +184,17 @@ class ExtractRouteTest extends TestCase
 
         // attributes.
         if (PHP_VERSION_ID >= 80000) {
-            $count += 6;
+            $count += 7;
         }
         else {
-            $count += 3;
+            $count += 4;
         }
 
         // namespaces, from ns-test.
         $count += 6;
 
         // namespaces, from attr-test.
-        $count += 4;
+        $count += 5;
 
         $this->assertCount($count, $router->routes);
     }
@@ -219,25 +219,26 @@ class ExtractRouteTest extends TestCase
 
         // attributes.
         if (PHP_VERSION_ID >= 80000) {
-            $count += 6 * 2;
+            $count += 7 * 2;
         }
         else {
-            $count += 3 * 2;
+            $count += 4 * 2;
         }
 
         // namespaces, from ns-test.
         $count += 6 * 2;
 
         // namespaces, from attr-test.
-        $count += 4 * 2;
+        $count += 5 * 2;
 
         $this->assertCount($count, $router->routes);
 
-        $action = $router->find('GET', '/prefix1');
-        $this->assertNull($action);
-
         $action = $router->find('GET', '/prefix2');
         $this->assertNull($action);
+
+        $action = $router->find('GET', '/prefix1');
+        $this->assertNotNull($action);
+        $this->assertEquals([AttrTestController::class, 'actionRoot'], $action->target);
 
         $action = $router->find('GET', '/prefix1/test');
         $this->assertNotNull($action);
