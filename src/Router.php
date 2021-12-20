@@ -405,7 +405,10 @@ abstract class Router
                         $rule[0] = $prefix . $rule[0];
                     }
 
+                    // Tidy up.
                     $rule = preg_replace('|/+|', '/', implode(' ', $rule));
+                    $rule = rtrim($rule, '/');
+
                     $routes[$rule] = $target;
                 }
             }
@@ -414,6 +417,8 @@ abstract class Router
             $docs = Route::parseDoc($method->getDocComment() ?: '');
 
             foreach ($docs as $doc) {
+                // Insert the prefix before the method.
+                // Takes a bit of work.
                 $rule = explode(' ', $doc->rule, 2);
 
                 if (count($rule) == 2) {
@@ -423,7 +428,10 @@ abstract class Router
                     $rule[0] = $prefix . $rule[0];
                 }
 
+                // Tidy up.
                 $rule = preg_replace('|/+|', '/', implode(' ', $rule));
+                $rule = rtrim($rule, '/');
+
                 $routes[$rule] = $target;
             }
         }
@@ -541,6 +549,8 @@ abstract class Router
                 $rule
             );
 
+            $rule = '/' . $rule;
+
             // Clean out weird artifacts + some common stuff.
             $rule = str_replace('/-', '/', $rule);
             $rule = str_replace('_', '-', $rule);
@@ -553,6 +563,10 @@ abstract class Router
             if ($args) {
                 $rule .= '/' . implode('/', $args);
             }
+
+            // Tidy up.
+            $rule = preg_replace('|/+|', '/', $rule);
+            $rule = rtrim($rule, '/');
 
             // Nice.
             $routes["ACTION /{$rule}"] = $target;
