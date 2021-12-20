@@ -373,7 +373,10 @@ abstract class Router
                         $rule[0] = $prefix . $rule[0];
                     }
 
+                    // Tidy up.
                     $rule = preg_replace('|/+|', '/', implode(' ', $rule));
+                    $rule = rtrim($rule, '/');
+
                     $routes[$rule] = $target;
                 }
             }
@@ -382,6 +385,8 @@ abstract class Router
             $docs = Route::parseDoc($method->getDocComment() ?: '');
 
             foreach ($docs as $doc) {
+                // Insert the prefix before the method.
+                // Takes a bit of work.
                 $rule = explode(' ', $doc->rule, 2);
 
                 if (count($rule) == 2) {
@@ -391,7 +396,10 @@ abstract class Router
                     $rule[0] = $prefix . $rule[0];
                 }
 
+                // Tidy up.
                 $rule = preg_replace('|/+|', '/', implode(' ', $rule));
+                $rule = rtrim($rule, '/');
+
                 $routes[$rule] = $target;
             }
         }
@@ -514,7 +522,9 @@ abstract class Router
                 $rule
             );
 
+            // TODO I'm not sure about always having this slash here..
             $rule = '/' . $rule;
+            $rule = $prefix . $rule;
 
             // Clean out weird artifacts.
             $rule = str_replace('/-', '/', $rule);
@@ -523,13 +533,14 @@ abstract class Router
             // Custom rules.
             $rule = $this->editNamespaceRule($rule);
 
-            // Add the prefix.
-            $rule = preg_replace('|/+|', '/', $prefix . $rule);
-
             // Tack on the arguments.
             if ($args) {
                 $rule .= '/' . implode('/', $args);
             }
+
+            // Tidy up.
+            $rule = preg_replace('|/+|', '/', $rule);
+            $rule = rtrim($rule, '/');
 
             // Nice.
             $routes["ACTION {$rule}"] = $target;
