@@ -378,9 +378,7 @@ abstract class Router
         $reflect = new ReflectionClass($class);
         $methods = $reflect->getMethods(ReflectionMethod::IS_PUBLIC);
 
-        if ($prefix) {
-            $prefix = rtrim($prefix, '/') . '/';
-        }
+        $prefix = rtrim($prefix, '/');
 
         $routes = [];
 
@@ -396,19 +394,7 @@ abstract class Router
                 foreach ($attributes as $attribute) {
                     /** @var Route $route */
                     $route = $attribute->newInstance();
-                    $rule = explode(' ', $route->rule, 2);
-
-                    if (count($rule) == 2) {
-                        $rule[1] = $prefix . $rule[1];
-                    }
-                    else {
-                        $rule[0] = $prefix . $rule[0];
-                    }
-
-                    // Tidy up.
-                    $rule = preg_replace('|/+|', '/', implode(' ', $rule));
-                    $rule = rtrim($rule, '/');
-
+                    $rule = self::insertPrefix($route->rule, $prefix);
                     $routes[$rule] = $target;
                 }
             }
@@ -417,21 +403,7 @@ abstract class Router
             $docs = Route::parseDoc($method->getDocComment() ?: '');
 
             foreach ($docs as $doc) {
-                // Insert the prefix before the method.
-                // Takes a bit of work.
-                $rule = explode(' ', $doc->rule, 2);
-
-                if (count($rule) == 2) {
-                    $rule[1] = $prefix . $rule[1];
-                }
-                else {
-                    $rule[0] = $prefix . $rule[0];
-                }
-
-                // Tidy up.
-                $rule = preg_replace('|/+|', '/', implode(' ', $rule));
-                $rule = rtrim($rule, '/');
-
+                $rule = self::insertPrefix($doc->rule, $prefix);
                 $routes[$rule] = $target;
             }
         }
@@ -484,11 +456,9 @@ abstract class Router
         $reflect = new ReflectionClass($class);
         $methods = $reflect->getMethods(ReflectionMethod::IS_PUBLIC);
 
-        $routes = [];
+        $prefix = rtrim($prefix, '/');
 
-        if ($prefix) {
-            $prefix = rtrim($prefix, '/') . '/';
-        }
+        $routes = [];
 
         foreach ($methods as $method) {
             $name = $method->getShortName();
@@ -549,30 +519,53 @@ abstract class Router
                 $rule
             );
 
-            $rule = '/' . $rule;
+            $rule = 'ACTION /' . $rule;
 
             // Clean out weird artifacts + some common stuff.
             $rule = str_replace('/-', '/', $rule);
             $rule = str_replace('_', '-', $rule);
             $rule = str_replace(static::$STRIP_ACTION_PATHS, '', $rule);
 
-            // Add the prefix.
-            $rule = trim($prefix . $rule, '/');
-
             // Tack on the arguments.
             if ($args) {
                 $rule .= '/' . implode('/', $args);
             }
 
-            // Tidy up.
-            $rule = preg_replace('|/+|', '/', $rule);
-            $rule = rtrim($rule, '/');
-
             // Nice.
-            $routes["ACTION /{$rule}"] = $target;
+            $rule = self::insertPrefix($rule, $prefix);
+            $routes[$rule] = $target;
         }
 
         return $routes;
+    }
+
+    /**
+     * Insert a prefix.
+     *
+     * This accounts for `/rule` and `METHOD /path` style rules.
+     *
+     * @param string $rule
+     * @param string $prefix
+     * @return string
+     */
+    protected static function insertPrefix(string $rule, string $prefix): string
+    {
+        if (!$prefix) return $rule;
+
+        $rule = explode(' ', $rule, 2);
+
+        if (count($rule) == 2) {
+            $rule[1] = $prefix . '/' . $rule[1];
+            $rule = implode(' ', $rule);
+        }
+        else {
+            $rule = $prefix . '/' . $rule[0];
+        }
+
+        $rule = preg_replace('|/+|', '/', $rule);
+        $rule = rtrim($rule, '/');
+
+        return $rule;
     }
 
 
