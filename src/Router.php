@@ -401,11 +401,9 @@ abstract class Router
      * }
      * ```
      *
-     * Special keywords are ignored by the `STRIP_ACTION_PATHS` static config.
-     *
-     * By default:
-     * - '/controllers'
-     * - '-controller'
+     * The router can be configured to clean up the rule before inserting into
+     * the route table with the `edit_namespace_rule` config. By default, this
+     * cleans out tokens like 'controller', 'app', 'core', 'module'.
      *
      * What qualifies as an acceptable action method:
      * - must be public
