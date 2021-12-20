@@ -346,9 +346,7 @@ abstract class Router
         $reflect = new ReflectionClass($class);
         $methods = $reflect->getMethods(ReflectionMethod::IS_PUBLIC);
 
-        if ($prefix) {
-            $prefix = rtrim($prefix, '/') . '/';
-        }
+        $prefix = rtrim($prefix, '/');
 
         $routes = [];
 
@@ -364,19 +362,7 @@ abstract class Router
                 foreach ($attributes as $attribute) {
                     /** @var Route $route */
                     $route = $attribute->newInstance();
-                    $rule = explode(' ', $route->rule, 2);
-
-                    if (count($rule) == 2) {
-                        $rule[1] = $prefix . $rule[1];
-                    }
-                    else {
-                        $rule[0] = $prefix . $rule[0];
-                    }
-
-                    // Tidy up.
-                    $rule = preg_replace('|/+|', '/', implode(' ', $rule));
-                    $rule = rtrim($rule, '/');
-
+                    $rule = $this->insertPrefix($route->rule, $prefix);
                     $routes[$rule] = $target;
                 }
             }
@@ -385,21 +371,7 @@ abstract class Router
             $docs = Route::parseDoc($method->getDocComment() ?: '');
 
             foreach ($docs as $doc) {
-                // Insert the prefix before the method.
-                // Takes a bit of work.
-                $rule = explode(' ', $doc->rule, 2);
-
-                if (count($rule) == 2) {
-                    $rule[1] = $prefix . $rule[1];
-                }
-                else {
-                    $rule[0] = $prefix . $rule[0];
-                }
-
-                // Tidy up.
-                $rule = preg_replace('|/+|', '/', implode(' ', $rule));
-                $rule = rtrim($rule, '/');
-
+                $rule = $this->insertPrefix($doc->rule, $prefix);
                 $routes[$rule] = $target;
             }
         }
@@ -452,16 +424,18 @@ abstract class Router
         $reflect = new ReflectionClass($class);
         $methods = $reflect->getMethods(ReflectionMethod::IS_PUBLIC);
 
-        $routes = [];
+        $prefix = rtrim($prefix, '/');
 
-        if ($prefix) {
-            $prefix = rtrim($prefix, '/') . '/';
-        }
-
-        $rule_class = $class;
+        // We can extract long rules or short rules.
+        // Short rules are particularly neat with prefixes.
         if ($this->config->extract & Router::EXTRACT_SHORT_NAMESPACES) {
             $rule_class = $reflect->getShortName();
         }
+        else {
+            $rule_class = $class;
+        }
+
+        $routes = [];
 
         foreach ($methods as $method) {
             $name = $method->getShortName();
@@ -523,8 +497,7 @@ abstract class Router
             );
 
             // TODO I'm not sure about always having this slash here..
-            $rule = '/' . $rule;
-            $rule = $prefix . $rule;
+            $rule = 'ACTION /' . $rule;
 
             // Clean out weird artifacts.
             $rule = str_replace('/-', '/', $rule);
@@ -538,15 +511,42 @@ abstract class Router
                 $rule .= '/' . implode('/', $args);
             }
 
-            // Tidy up.
-            $rule = preg_replace('|/+|', '/', $rule);
-            $rule = rtrim($rule, '/');
-
             // Nice.
-            $routes["ACTION {$rule}"] = $target;
+            $rule = $this->insertPrefix($rule, $prefix);
+            $routes[$rule] = $target;
         }
 
         return $routes;
+    }
+
+
+    /**
+     * Insert a prefix.
+     *
+     * This accounts for `/rule` and `METHOD /path` style rules.
+     *
+     * @param string $rule
+     * @param string $prefix
+     * @return string
+     */
+    protected function insertPrefix(string $rule, string $prefix): string
+    {
+        if (!$prefix) return $rule;
+
+        $rule = explode(' ', $rule, 2);
+
+        if (count($rule) == 2) {
+            $rule[1] = $prefix . '/' . $rule[1];
+            $rule = implode(' ', $rule);
+        }
+        else {
+            $rule = $prefix . '/' . $rule[0];
+        }
+
+        $rule = preg_replace('|/+|', '/', $rule);
+        $rule = rtrim($rule, '/');
+
+        return $rule;
     }
 
 
