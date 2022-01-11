@@ -35,8 +35,13 @@ abstract class Router
         'DELETE',
     ];
 
+    /** Use (fast) 'rule' patterns when parsing rules. */
     const MODE_CHUNKED = 'chunked';
+
+    /** Use (slow) 'rule' patterns when parsing rules. */
     const MODE_SINGLE = 'single';
+
+    /** Use regex patterns when parsing rules. */
     const MODE_REGEX = 'regex';
 
     const MODES = [
@@ -45,12 +50,25 @@ abstract class Router
         self::MODE_REGEX => RouterRegexMode::class,
     ];
 
+    /** Do not extract routes from classes. */
     const EXTRACT_NONE = 0;
+
+    /** Extract routes from method namespaces. */
     const EXTRACT_NAMESPACES = 1;
+
+    /** Extract routes from attributes. */
     const EXTRACT_ATTRIBUTES = 2;
+
+    /** Extract routes from both namespaces + attributes. */
     const EXTRACT_ALL = 3;
+
+    /** Convert extracted rule-style patterns to regex. */
     const EXTRACT_CONVERT_REGEX = 128;
+
+    /** Add prefixes (from the route table) to the extracted extract routes. */
     const EXTRACT_WITH_PREFIXES = 256;
+
+    /** Use only the class::method when extracting namespace rules. */
     const EXTRACT_SHORT_NAMESPACES = 512;
 
     /**
