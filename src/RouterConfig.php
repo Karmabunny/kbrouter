@@ -28,7 +28,7 @@ class RouterConfig
      * - 'none' (0)
      * - 'namespaces' (1) - convert 'ns\controller\method' into rule names
      * - 'attributes' (2) - extract PHP8 attributes and @route comments
-     * - 'all' (3 + 256) - extract all routes + prefixes
+     * - 'all' (3) - extract all routes
      *
      * Additional flags:
      * - 'convert_regex' (128) convert extracted rule patterns to regex
@@ -85,14 +85,22 @@ class RouterConfig
 
         // Convert strings into a bitwise mask.
         if (is_string($this->extract)) {
+            $extract = explode('|', $this->extract);
+
             static $REMAP = [
                 'namespaces' => Router::EXTRACT_NAMESPACES,
                 'attributes' => Router::EXTRACT_ATTRIBUTES,
-                'all' => Router::EXTRACT_ALL | Router::EXTRACT_WITH_PREFIXES,
+                'all' => Router::EXTRACT_ALL,
+                'prefixes' => Router::EXTRACT_WITH_PREFIXES,
+                'short' => Router::EXTRACT_SHORT_NAMESPACES,
                 'none' => Router::EXTRACT_NONE,
             ];
 
-            $this->extract = $REMAP[$this->extract] ?? null;
+            $this->extract = 0;
+
+            foreach ($extract as $item) {
+                $this->extract |= $REMAP[$item] ?? 0;
+            }
         }
 
         if (!$this->extract) {

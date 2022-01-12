@@ -29,6 +29,10 @@ class ExtractRouteTest extends TestCase
         $this->assertNotContains('ACTION', $config->methods);
 
         $config = new RouterConfig([ 'extract' => 'all' ]);
+        $this->assertEquals(Router::EXTRACT_ALL, $config->extract);
+        $this->assertContains('ACTION', $config->methods);
+
+        $config = new RouterConfig([ 'extract' => 'all|prefixes' ]);
         $this->assertEquals(Router::EXTRACT_ALL | Router::EXTRACT_WITH_PREFIXES, $config->extract);
         $this->assertContains('ACTION', $config->methods);
 
@@ -228,7 +232,7 @@ class ExtractRouteTest extends TestCase
     public function testExtractWithPrefixes()
     {
         $router = Router::create([
-            'extract' => 'all',
+            'extract' => 'all|prefixes',
         ]);
         $router->load([
             'GET /a/test/{route}' => 'hi there',
