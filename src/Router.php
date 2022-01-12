@@ -142,7 +142,7 @@ abstract class Router
      * @param array $routes [ rule => target ]
      * @return array [ rule => target ] diff of new routes
      */
-    public function load(array $routes)
+    public function load(array $routes): array
     {
         $new_routes = [];
         $class_routes = [];

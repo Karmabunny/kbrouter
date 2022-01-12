@@ -72,12 +72,13 @@ class RouterSingleMode extends Router
 
 
     /** @inheritdoc */
-    public function load(array $routes)
+    public function load(array $routes): array
     {
         $routes = parent::load($routes);
         if ($routes) {
             $this->compile($routes);
         }
+        return $routes;
     }
 
 

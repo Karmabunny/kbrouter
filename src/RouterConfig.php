@@ -68,7 +68,7 @@ class RouterConfig
     /**
      * Use this the alter or clean the namespace rules.
      *
-     * @var callable
+     * @var callable|null
      */
     public $edit_namespace_rule = [self::class, 'editNamespaceRule'];
 
@@ -85,8 +85,8 @@ class RouterConfig
         }
 
         // Convert strings into a bitwise mask.
-        if (is_string($this->extract)) {
-            $extract = explode('|', $this->extract);
+        if (is_string($extract = $config['extract'] ?? null)) {
+            $extract = explode('|', $extract);
 
             static $REMAP = [
                 'namespaces' => Router::EXTRACT_NAMESPACES,
