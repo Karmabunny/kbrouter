@@ -71,6 +71,9 @@ abstract class Router
     /** Use only the class::method when extracting namespace rules. */
     const EXTRACT_SHORT_NAMESPACES = 512;
 
+    /** Add prefixes, but also permit multiple controllers per rule. */
+    const EXTRACT_NESTED_PREFIXES = 1024;
+
     /**
      * Match for rule variables like `{var}`, after `preg_quote`.
      *
@@ -169,21 +172,7 @@ abstract class Router
                     $prefix = $rule;
                 }
 
-                if ($this->config->extract & self::EXTRACT_NAMESPACES) {
-                    $auto = $this->extractFromNamespaces($target, $prefix);
-
-                    foreach ($auto as $sub_rule => $sub_target) {
-                        $class_routes[$sub_rule] = $sub_target;
-                    }
-                }
-
-                if ($this->config->extract & self::EXTRACT_ATTRIBUTES) {
-                    $auto = $this->extractFromAttributes($target, $prefix);
-
-                    foreach ($auto as $sub_rule => $sub_target) {
-                        $class_routes[$sub_rule] = $sub_target;
-                    }
-                }
+                $this->extractAll($class_routes, $target, $prefix);
 
                 continue;
             }
@@ -192,6 +181,29 @@ abstract class Router
             // TODO or throw an error..?
             if (is_numeric($rule)) {
                 continue;
+            }
+
+            // Nested prefixed controllers.
+            if (
+                $this->config->extract & self::EXTRACT_NESTED_PREFIXES
+                and is_array($target)
+                and !empty($target)
+            ) {
+                foreach ($target as $class) {
+                    if (is_object($class) or class_exists($class)) continue;
+                    unset($class);
+                    break;
+                }
+
+                // All items are valid classes.
+                if (isset($class)) {
+                    foreach ($target as $class) {
+                        $this->extractAll($class_routes, $class, $rule);
+                    }
+
+                    // Done.
+                    continue;
+                }
             }
 
             $new_routes[$rule] = $target;
@@ -544,6 +556,35 @@ abstract class Router
         }
 
         return $routes;
+    }
+
+
+    /**
+     * Perform rule extractions, as appropriate.
+     *
+     * @param array $class_routes output array
+     * @param string|object $target
+     * @param string $prefix
+     * @return void
+     * @throws ReflectionException
+     */
+    protected function extractAll(array &$class_routes, $target, string $prefix)
+    {
+        if ($this->config->extract & self::EXTRACT_NAMESPACES) {
+            $auto = $this->extractFromNamespaces($target, $prefix);
+
+            foreach ($auto as $sub_rule => $sub_target) {
+                $class_routes[$sub_rule] = $sub_target;
+            }
+        }
+
+        if ($this->config->extract & self::EXTRACT_ATTRIBUTES) {
+            $auto = $this->extractFromAttributes($target, $prefix);
+
+            foreach ($auto as $sub_rule => $sub_target) {
+                $class_routes[$sub_rule] = $sub_target;
+            }
+        }
     }
 
 

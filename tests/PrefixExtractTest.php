@@ -73,4 +73,37 @@ class PrefixExtractTest extends TestCase
 
         $this->assertEquals($expected, $actual);
     }
+
+
+    public function testPrefixNested()
+    {
+        $router = Router::create([
+            'extract' => 'namespaces|short|prefixes|nested',
+        ]);
+
+        $router->load([
+            'prefix' => [
+                NsTestController::class,
+                AttrTestController::class,
+            ],
+        ]);
+
+        $expected = [
+            'ACTION prefix/ns-test/test' => [NsTestController::class, 'test'],
+            'ACTION prefix/ns-test/thing-etc/{etc}/{ooh}' => [NsTestController::class, 'thingEtc'],
+            'ACTION prefix/ns-test/get-x-m-l-result/{input}' => [NsTestController::class, 'getXMLResult'],
+            'ACTION prefix/ns-test/big-long-method-name' => [NsTestController::class, 'big_long_method_name'],
+            'ACTION prefix/ns-test/static-action' => [NsTestController::class, 'staticAction'],
+            'ACTION prefix/ns-test/acceptable-args/{num}' => [NsTestController::class, 'acceptableArgs'],
+
+            'ACTION prefix/attr-test/root' => [AttrTestController::class, 'actionRoot'],
+            'ACTION prefix/attr-test/test' => [AttrTestController::class, 'actionTest'],
+            'ACTION prefix/attr-test/thing-etc/{etc}' => [AttrTestController::class, 'thingEtc'],
+            'ACTION prefix/attr-test/eight-only' => [AttrTestController::class, 'eightOnly'],
+            'ACTION prefix/attr-test/eight-another' => [AttrTestController::class, 'eightAnother'],
+        ];
+
+        $actual = $router->routes;
+        $this->assertEquals($expected, $actual);
+    }
 }

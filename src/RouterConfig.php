@@ -34,6 +34,7 @@ class RouterConfig
      * - 'convert_regex' (128) convert extracted rule patterns to regex
      * - 'with_prefixes' (256) add prefixes to extracted routes
      * - 'short_namespaces' (512) only use controller/method in the rule path
+     * - 'nested_prefixes' (256 + 1024) permit multiple controllers per prefix
      *
      * @var int
      */
@@ -93,6 +94,7 @@ class RouterConfig
                 'all' => Router::EXTRACT_ALL,
                 'prefixes' => Router::EXTRACT_WITH_PREFIXES,
                 'short' => Router::EXTRACT_SHORT_NAMESPACES,
+                'nested' => Router::EXTRACT_NESTED_PREFIXES,
                 'none' => Router::EXTRACT_NONE,
             ];
 
@@ -138,6 +140,7 @@ class RouterConfig
             '/bloom',
             '/controllers',
             '-controller',
+            'action-',
         ];
 
         return str_replace($remove, '', $rule);
