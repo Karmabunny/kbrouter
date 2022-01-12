@@ -123,6 +123,17 @@ abstract class Router
 
 
     /**
+     * Get the currently loaded routes.
+     *
+     * @return array
+     */
+    public function getRoutes(): array
+    {
+        return $this->routes;
+    }
+
+
+    /**
      * Load routes.
      *
      * @param array $routes [ rule => target ]
