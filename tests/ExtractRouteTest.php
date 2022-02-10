@@ -98,7 +98,7 @@ class ExtractRouteTest extends TestCase
             '/prefix' => NsTestController::class,
         ]);
 
-        $this->assertCount(9, $router->routes);
+        $this->assertCount(12, $router->routes);
 
         $action = $router->find('GET', '/a/test/one');
         $this->assertNotNull($action);
@@ -135,7 +135,7 @@ class ExtractRouteTest extends TestCase
             '/prefix' => NsTestController::class,
         ]);
 
-        $this->assertCount(12, $router->routes);
+        $this->assertCount(18, $router->routes);
 
         $action = $router->find('ACTION', '/kbtests/ns-test/test');
         $this->assertNull($action);
@@ -220,7 +220,7 @@ class ExtractRouteTest extends TestCase
         }
 
         // namespaces, from ns-test.
-        $count += 6;
+        $count += 9;
 
         // namespaces, from attr-test.
         $count += 5;
@@ -255,7 +255,7 @@ class ExtractRouteTest extends TestCase
         }
 
         // namespaces, from ns-test.
-        $count += 6 * 2;
+        $count += 9 * 2;
 
         // namespaces, from attr-test.
         $count += 5 * 2;

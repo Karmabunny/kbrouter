@@ -93,6 +93,9 @@ class PrefixExtractTest extends TestCase
             'ACTION prefix/ns-test/thing-etc/{etc}/{ooh}' => [NsTestController::class, 'thingEtc'],
             'ACTION prefix/ns-test/get-x-m-l-result/{input}' => [NsTestController::class, 'getXMLResult'],
             'ACTION prefix/ns-test/big-long-method-name' => [NsTestController::class, 'big_long_method_name'],
+            'ACTION prefix/ns-test/optionals/{one}' => [NsTestController::class, 'optionals'],
+            'ACTION prefix/ns-test/optionals/{one}/{two}' => [NsTestController::class, 'optionals'],
+            'ACTION prefix/ns-test/optionals/{one}/{two}/{three}' => [NsTestController::class, 'optionals'],
             'ACTION prefix/ns-test/static-action' => [NsTestController::class, 'staticAction'],
             'ACTION prefix/ns-test/acceptable-args/{num}' => [NsTestController::class, 'acceptableArgs'],
 

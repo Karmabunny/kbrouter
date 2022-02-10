@@ -22,6 +22,9 @@ class NamespaceRouteTest extends TestCase
             'ACTION /kbtests/ns-test/thing-etc/{etc}/{ooh}' => [NsTestController::class, 'thingEtc'],
             'ACTION /kbtests/ns-test/get-x-m-l-result/{input}' => [NsTestController::class, 'getXMLResult'],
             'ACTION /kbtests/ns-test/big-long-method-name' => [NsTestController::class, 'big_long_method_name'],
+            'ACTION /kbtests/ns-test/optionals/{one}' => [NsTestController::class, 'optionals'],
+            'ACTION /kbtests/ns-test/optionals/{one}/{two}' => [NsTestController::class, 'optionals'],
+            'ACTION /kbtests/ns-test/optionals/{one}/{two}/{three}' => [NsTestController::class, 'optionals'],
             'ACTION /kbtests/ns-test/static-action' => [NsTestController::class, 'staticAction'],
             'ACTION /kbtests/ns-test/acceptable-args/{num}' => [NsTestController::class, 'acceptableArgs'],
         ];

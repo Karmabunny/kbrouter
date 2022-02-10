@@ -502,6 +502,7 @@ abstract class Router
             if ($method->isDestructor()) continue;
 
             $args = [];
+            $optionals = 0;
 
             // Find some args first.
             foreach ($method->getParameters() as $parameter) {
@@ -535,6 +536,20 @@ abstract class Router
                 }
 
                 $args[] = '{' . $parameter->getName() . '}';
+
+                // We only want _trailing_ optionals because despite having
+                // named parameters, a route path is still ordered.
+                // To be fair this is only a problem in PHP8.
+                if (
+                    $parameter->isOptional() or
+                    $parameter->isDefaultValueAvailable() or
+                    ($type and $type->allowsNull())
+                ) {
+                    $optionals++;
+                }
+                else {
+                    $optionals = 0;
+                }
             }
 
             // Target + initial rule.
@@ -560,13 +575,25 @@ abstract class Router
             // Custom rules.
             $rule = $this->editNamespaceRule($rule);
 
-            // Tack on the arguments.
+            // Nice.
+            $rule = self::insertPrefix($rule, $prefix);
+
+            // Build alternate rules for optional args.
+            if ($args and $optionals) {
+                $last = count($args) - 1;
+
+                for ($i = 0; $i < $optionals; $i++) {
+                    $subargs = array_slice($args, 0, $last - $i);
+                    $subrule = $rule . '/' . implode('/', $subargs);
+                    $routes[$subrule] = $target;
+                }
+            }
+
+            // Regular args things.
             if ($args) {
                 $rule .= '/' . implode('/', $args);
             }
 
-            // Nice.
-            $rule = self::insertPrefix($rule, $prefix);
             $routes[$rule] = $target;
         }
 
