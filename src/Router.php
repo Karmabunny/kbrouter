@@ -247,7 +247,8 @@ abstract class Router
      */
     public function loadAttributes($class, $prefix = '')
     {
-        $this->load($this->extractFromAttributes($class));
+        $routes = $this->extractFromAttributes($class, $prefix);
+        $this->load($routes);
     }
 
 
@@ -259,7 +260,8 @@ abstract class Router
      */
     public function loadNamespaces($class, $prefix = '')
     {
-        $this->load($this->extractFromNamespaces($class));
+        $routes = $this->extractFromNamespaces($class, $prefix);
+        $this->load($routes);
     }
 
 
