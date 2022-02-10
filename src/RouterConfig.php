@@ -134,15 +134,15 @@ class RouterConfig
     public static function editNamespaceRule(string $rule)
     {
         static $remove = [
-            '/app',
-            '/core',
-            '/module',
-            '/bloom',
-            '/controllers',
-            '-controller',
-            'action-',
+            '/app/',
+            '/core/',
+            '/module/',
+            '/bloom/',
+            '/controllers/',
+            '-controller/',
+            '/action-',
         ];
 
-        return str_replace($remove, '', $rule);
+        return str_replace($remove, '/', $rule);
     }
 }
