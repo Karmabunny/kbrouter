@@ -229,20 +229,28 @@ abstract class Router
     /**
      * Load magic routes from a class.
      *
+     * This loads attributes and namespace routes regardless of the
+     * 'extract' config settings.
+     *
      * @param string|object $class
+     * @param string $prefix
+     * @param bool $short
      * @return void
      */
-    public function loadFrom($class, $prefix = '')
+    public function loadFrom($class, $prefix = '', $short = false)
     {
         $this->loadAttributes($class, $prefix);
-        $this->loadNamespaces($class, $prefix);
+        $this->loadNamespaces($class, $prefix, $short);
     }
 
 
     /**
      * Load attribute routes from a class.
      *
+     * This will extract routes regardless of the 'extract' config.
+     *
      * @param string|object $class
+     * @param string $prefix
      * @return void
      */
     public function loadAttributes($class, $prefix = '')
@@ -253,14 +261,18 @@ abstract class Router
 
 
     /**
+     * Load namespace routes from a class.
      *
+     * This will extract routes regardless of the 'extract' config.
      *
      * @param string|object $class
+     * @param string $prefix
+     * @param bool $short Use short names (class::method only)
      * @return void
      */
-    public function loadNamespaces($class, $prefix = '')
+    public function loadNamespaces($class, $prefix = '', $short = false)
     {
-        $routes = $this->extractFromNamespaces($class, $prefix);
+        $routes = $this->extractFromNamespaces($class, $prefix, $short);
         $this->load($routes);
     }
 
@@ -457,10 +469,11 @@ abstract class Router
      *
      * @param string|object $class
      * @param string $prefix
+     * @param bool $short Use short names (class::method only)
      * @return array [ rule => target ]
      * @throws ReflectionException
      */
-    public function extractFromNamespaces($class, $prefix = ''): array
+    public function extractFromNamespaces($class, $prefix = '', $short = false): array
     {
         $reflect = new ReflectionClass($class);
         $methods = $reflect->getMethods(ReflectionMethod::IS_PUBLIC);
@@ -469,7 +482,7 @@ abstract class Router
 
         // We can extract long rules or short rules.
         // Short rules are particularly neat with prefixes.
-        if ($this->config->extract & Router::EXTRACT_SHORT_NAMESPACES) {
+        if ($short) {
             $rule_class = $reflect->getShortName();
         }
         else {
@@ -573,7 +586,8 @@ abstract class Router
     protected function extractAll(array &$class_routes, $target, string $prefix)
     {
         if ($this->config->extract & self::EXTRACT_NAMESPACES) {
-            $auto = $this->extractFromNamespaces($target, $prefix);
+            $short = (bool) ($this->config->extract & Router::EXTRACT_SHORT_NAMESPACES);
+            $auto = $this->extractFromNamespaces($target, $prefix, $short);
 
             foreach ($auto as $sub_rule => $sub_target) {
                 $class_routes[$sub_rule] = $sub_target;
