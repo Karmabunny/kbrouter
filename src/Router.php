@@ -417,7 +417,7 @@ abstract class Router
                 foreach ($attributes as $attribute) {
                     /** @var Route $route */
                     $route = $attribute->newInstance();
-                    $rule = $this->insertPrefix($route->rule, $prefix);
+                    $rule = self::insertPrefix($route->rule, $prefix);
                     $routes[$rule] = $target;
                 }
             }
@@ -426,7 +426,7 @@ abstract class Router
             $docs = Route::parseDoc($method->getDocComment() ?: '');
 
             foreach ($docs as $doc) {
-                $rule = $this->insertPrefix($doc->rule, $prefix);
+                $rule = self::insertPrefix($doc->rule, $prefix);
                 $routes[$rule] = $target;
             }
         }
@@ -566,7 +566,7 @@ abstract class Router
             }
 
             // Nice.
-            $rule = $this->insertPrefix($rule, $prefix);
+            $rule = self::insertPrefix($rule, $prefix);
             $routes[$rule] = $target;
         }
 
@@ -613,7 +613,7 @@ abstract class Router
      * @param string $prefix
      * @return string
      */
-    protected function insertPrefix(string $rule, string $prefix): string
+    protected static function insertPrefix(string $rule, string $prefix): string
     {
         if (!$prefix) return $rule;
 
