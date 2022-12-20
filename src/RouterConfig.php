@@ -74,6 +74,14 @@ class RouterConfig
 
 
     /**
+     * Doesn't do anything, just good for debugging in vardump().
+     *
+     * @var string
+     */
+    protected $_extract = '|';
+
+
+    /**
      * Build a config.
      *
      * @param array $config
@@ -133,6 +141,13 @@ class RouterConfig
             and !($this->extract & Router::EXTRACT_WITH_PREFIXES)
         ) {
             $this->extract |= Router::EXTRACT_WITH_PREFIXES;
+        }
+
+        // Build some debug stuff.
+        foreach ($REMAP as $name => $value) {
+            if (($this->extract & $value) === $value) {
+                $this->_extract .= $name . '|';
+            }
         }
     }
 
