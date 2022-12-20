@@ -31,10 +31,10 @@ class RouterConfig
      * - 'all' (3) - extract all routes
      *
      * Additional flags:
-     * - 'convert_regex' (128) convert extracted rule patterns to regex
-     * - 'with_prefixes' (256) add prefixes to extracted routes
-     * - 'short_namespaces' (512) only use controller/method in the rule path
-     * - 'nested_prefixes' (256 + 1024) permit multiple controllers per prefix
+     * - 'convert' (128) convert extracted rule patterns to regex
+     * - 'prefixes' (256) add prefixes to extracted routes
+     * - 'short' (512) only use controller/method in the rule path
+     * - 'nested' (256 + 1024) permit multiple controllers per prefix
      *
      * @var int
      */
@@ -92,6 +92,7 @@ class RouterConfig
                 'namespaces' => Router::EXTRACT_NAMESPACES,
                 'attributes' => Router::EXTRACT_ATTRIBUTES,
                 'all' => Router::EXTRACT_ALL,
+                'convert' => Router::EXTRACT_CONVERT_REGEX,
                 'prefixes' => Router::EXTRACT_WITH_PREFIXES,
                 'short' => Router::EXTRACT_SHORT_NAMESPACES,
                 'nested' => Router::EXTRACT_NESTED_PREFIXES,
