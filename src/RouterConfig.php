@@ -117,11 +117,22 @@ class RouterConfig
         }
 
         // Protect against bad configs.
+        // Removing 'convert regex' if they've not set mode correctly.
+        // TODO Should this throw instead?
         if (
             ($this->extract & Router::EXTRACT_CONVERT_REGEX)
             and $this->mode != Router::MODE_REGEX
         ) {
             $this->extract ^= Router::EXTRACT_CONVERT_REGEX;
+        }
+
+        // If they said 'yeah nested' but not the 'with prefixes' bit.
+        // Force it on. This shouldn't ever be an error.
+        if (
+            ($this->extract & Router::EXTRACT_NESTED_PREFIXES)
+            and !($this->extract & Router::EXTRACT_WITH_PREFIXES)
+        ) {
+            $this->extract |= Router::EXTRACT_WITH_PREFIXES;
         }
     }
 
