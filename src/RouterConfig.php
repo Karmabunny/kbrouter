@@ -15,6 +15,21 @@ class RouterConfig
 {
 
     /**
+     * String forms for the 'extract' bitmask.
+     */
+    const EXTRACT_KEYWORDS = [
+        'namespaces' => Router::EXTRACT_NAMESPACES,
+        'attributes' => Router::EXTRACT_ATTRIBUTES,
+        'all' => Router::EXTRACT_ALL,
+        'convert' => Router::EXTRACT_CONVERT_REGEX,
+        'prefixes' => Router::EXTRACT_WITH_PREFIXES,
+        'short' => Router::EXTRACT_SHORT_NAMESPACES,
+        'nested' => Router::EXTRACT_NESTED_PREFIXES,
+        'none' => Router::EXTRACT_NONE,
+    ];
+
+
+    /**
      * Which router implementation to use.
      *
      * @var string
@@ -88,30 +103,13 @@ class RouterConfig
      */
     public function __construct($config)
     {
-        foreach ($config as $key => $value) {
-            $this->$key = $value;
-        }
-
         // Convert strings into a bitwise mask.
         if (is_string($extract = $config['extract'] ?? null)) {
-            $extract = explode('|', $extract);
+            $config['extract'] = self::parseExtract($extract);
+        }
 
-            static $REMAP = [
-                'namespaces' => Router::EXTRACT_NAMESPACES,
-                'attributes' => Router::EXTRACT_ATTRIBUTES,
-                'all' => Router::EXTRACT_ALL,
-                'convert' => Router::EXTRACT_CONVERT_REGEX,
-                'prefixes' => Router::EXTRACT_WITH_PREFIXES,
-                'short' => Router::EXTRACT_SHORT_NAMESPACES,
-                'nested' => Router::EXTRACT_NESTED_PREFIXES,
-                'none' => Router::EXTRACT_NONE,
-            ];
-
-            $this->extract = 0;
-
-            foreach ($extract as $item) {
-                $this->extract |= $REMAP[$item] ?? 0;
-            }
+        foreach ($config as $key => $value) {
+            $this->$key = $value;
         }
 
         if (!$this->extract) {
@@ -144,7 +142,7 @@ class RouterConfig
         }
 
         // Build some debug stuff.
-        foreach ($REMAP as $name => $value) {
+        foreach (self::EXTRACT_KEYWORDS as $name => $value) {
             if (($this->extract & $value) === $value) {
                 $this->_extract .= $name . '|';
             }
@@ -171,5 +169,27 @@ class RouterConfig
         ];
 
         return str_replace($remove, '/', $rule);
+    }
+
+
+    /**
+     * Convert the a string form 'extract' into a bitmask that matches the
+     * `Router::EXTRACT` flags.
+     *
+     * E.g. `'attributes|convert' => 2 + 128 = 130`
+     *
+     * @param string $extract
+     * @return int
+     */
+    public static function parseExtract(string $extract): int
+    {
+        $parts = explode('|', $extract);
+        $flags = 0;
+
+        foreach ($parts as $item) {
+            $flags |= self::EXTRACT_KEYWORDS[$item] ?? 0;
+        }
+
+        return $flags;
     }
 }
