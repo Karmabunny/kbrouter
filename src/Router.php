@@ -145,7 +145,6 @@ abstract class Router
     public function load(array $routes): array
     {
         $new_routes = [];
-        $class_routes = [];
 
         // If enabled, the target can be a class. From this we extract
         // routes via attributes and/or namespaces.
@@ -172,8 +171,8 @@ abstract class Router
                     $prefix = $rule;
                 }
 
-                $this->extractAll($class_routes, $target, $prefix);
-
+                $class_routes = $this->extractAll($target, $prefix);
+                $new_routes = array_merge($new_routes, $class_routes);
                 continue;
             }
 
@@ -197,8 +196,10 @@ abstract class Router
 
                 // All items are valid classes.
                 if (isset($class)) {
+
                     foreach ($target as $class) {
-                        $this->extractAll($class_routes, $class, $rule);
+                        $class_routes = $this->extractAll($class, $rule);
+                        $new_routes = array_merge($new_routes, $class_routes);
                     }
 
                     // Done.
@@ -207,18 +208,6 @@ abstract class Router
             }
 
             $new_routes[$rule] = $target;
-        }
-
-        // Convert class rules into patterns.
-        if ($this->config->extract & self::EXTRACT_CONVERT_REGEX) {
-            foreach ($class_routes as $rule => $target) {
-                $pattern = RouterSingleMode::convertRuleToPattern($rule);
-                $new_routes[$pattern] = $target;
-            }
-        }
-        // Or not.
-        else {
-            $new_routes = array_merge($new_routes, $class_routes);
         }
 
         $this->routes = array_merge($this->routes, $new_routes);
@@ -604,20 +593,21 @@ abstract class Router
     /**
      * Perform rule extractions, as appropriate.
      *
-     * @param array $class_routes output array
      * @param string|object $target
      * @param string $prefix
-     * @return void
+     * @return array routes
      * @throws ReflectionException
      */
-    protected function extractAll(array &$class_routes, $target, string $prefix)
+    protected function extractAll($target, string $prefix): array
     {
+        $routes = [];
+
         if ($this->config->extract & self::EXTRACT_NAMESPACES) {
             $short = (bool) ($this->config->extract & Router::EXTRACT_SHORT_NAMESPACES);
             $auto = $this->extractFromNamespaces($target, $prefix, $short);
 
             foreach ($auto as $sub_rule => $sub_target) {
-                $class_routes[$sub_rule] = $sub_target;
+                $routes[$sub_rule] = $sub_target;
             }
         }
 
@@ -625,9 +615,22 @@ abstract class Router
             $auto = $this->extractFromAttributes($target, $prefix);
 
             foreach ($auto as $sub_rule => $sub_target) {
-                $class_routes[$sub_rule] = $sub_target;
+                $routes[$sub_rule] = $sub_target;
             }
         }
+
+        if ($this->config->extract & self::EXTRACT_CONVERT_REGEX) {
+            $convert = [];
+
+            foreach ($routes as $rule => $target) {
+                $pattern = RouterSingleMode::convertRuleToPattern($rule);
+                $convert[$pattern] = $target;
+            }
+
+            return $convert;
+        }
+
+        return $routes;
     }
 
 
