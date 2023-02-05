@@ -6,7 +6,6 @@
 
 namespace karmabunny\router;
 
-use ReflectionException;
 use ReflectionFunction;
 use ReflectionMethod;
 
@@ -53,42 +52,16 @@ class Action
 
 
     /**
-     * The 'target' is callable.
+     * Is the 'target' callable?
      *
      * However, this doesn't mean that one can invoke the property directly.
-     *
-     * For a non-static target `[class, method]` this will return true but
-     * it's not possible to call these (in PHP 8+) without first creating a
-     * class instance.
-     *
      * Use the `invoke()` helper and provide an 'instance' object.
      *
      * @return bool
      */
     public function isCallable(): bool
     {
-        $yes = is_callable($this->target);
-
-        // It might be a non-static callable. PHP 8+ doesn't treat these the
-        // same, which is fair. We gotta assess this some other way.
-        if (!$yes and PHP_VERSION_ID >= 80000) {
-            if (
-                !is_callable($this->target, true)
-                or !is_array($this->target)
-                or !count($this->target) == 2
-            ) return false;
-
-            [$class, $name] = $this->target;
-            try {
-                new ReflectionMethod($class, $name);
-                return true;
-            }
-            catch (ReflectionException $exception) {
-                return false;
-            }
-        }
-
-        return $yes;
+        return Router::isCallable($this->target);
     }
 
 

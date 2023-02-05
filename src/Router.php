@@ -376,6 +376,55 @@ abstract class Router
 
 
     /**
+     * Is the 'target' callable?
+     *
+     * However, this doesn't mean that one can invoke the property directly.
+     *
+     * For a non-static target `[class, method]` this will return true but
+     * it's not possible to call these (in PHP 8+) without first creating a
+     * class instance.
+     *
+     * @param mixed $target
+     * @return bool
+     */
+    public static function isCallable($target): bool
+    {
+        $yes = is_callable($target);
+
+        if ($yes) {
+            return true;
+        }
+
+        // It might be a non-static callable. PHP 8+ doesn't treat these the
+        // same, which is fair. We gotta assess this some other way.
+        if (PHP_VERSION_ID >= 80000) {
+            if (is_string($target)) {
+                $target = rtrim($target, '()');
+                $target = explode('::', $target, 2);
+            }
+
+            if (
+                !is_callable($target, true)
+                or !is_array($target)
+                or !count($target) == 2
+            ) {
+                return false;
+            }
+
+            // Extra protections for PHP 8.1+ because it's cheap.
+            if (PHP_VERSION_ID > 80100 and !array_is_list($target)) {
+                return false;
+            }
+
+            [$class, $name] = $target;
+            return method_exists($class, $name);
+        }
+
+        return false;
+    }
+
+
+    /**
      * Find all the attribute routes on a target object/class.
      *
      * An attribute route is a PHP8 attribute or a @route doc comment.
