@@ -57,6 +57,18 @@ class RouterConfig
 
 
     /**
+     * Attribute extraction mode.
+     *
+     * - 'all' (3) - extract all attribute routes
+     * - 'attributes' (1) - extract PHP8 attributes
+     * - 'docs' (2) - extract @route doc comments
+     *
+     * @var int
+     */
+    public $attrs = Router::ATTR_ALL;
+
+
+    /**
      * Case sensitivity. By default - insensitive.
      *
      * @var bool

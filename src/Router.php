@@ -74,6 +74,15 @@ abstract class Router
     /** Add prefixes, but also permit multiple controllers per rule. */
     const EXTRACT_NESTED_PREFIXES = 1024;
 
+    /** Extract all attribute routes. */
+    const ATTR_ALL = self::ATTR_ATTRIBUTES | self::ATTR_DOCS;
+
+    /** Extract attribute (PHP8) routes. */
+    const ATTR_ATTRIBUTES = 1;
+
+    /** Extract doc routes. */
+    const ATTR_DOCS = 2;
+
     /**
      * Match for rule variables like `{var}`, after `preg_quote`.
      *
@@ -448,7 +457,7 @@ abstract class Router
             $target = [$class, $method->getShortName()];
 
             // God-master race PHP8.
-            if (PHP_VERSION_ID > 80000) {
+            if ($this->config->attrs & self::ATTR_ATTRIBUTES and PHP_VERSION_ID > 80000) {
                 // @phpstan-ignore-next-line : PHP8 property, already guarded.
                 $attributes = $method->getAttributes(Route::class);
 
@@ -460,12 +469,13 @@ abstract class Router
                 }
             }
 
-            // Just the peasant version for everyone else.
-            $docs = Route::parseDoc($method->getDocComment() ?: '');
+            if ($this->config->attrs & self::ATTR_DOCS) {
+                $docs = Route::parseDoc($method->getDocComment() ?: '');
 
-            foreach ($docs as $doc) {
-                $rule = self::insertPrefix($doc->rule, $prefix);
-                $routes[$rule] = $target;
+                foreach ($docs as $doc) {
+                    $rule = self::insertPrefix($doc->rule, $prefix);
+                    $routes[$rule] = $target;
+                }
             }
         }
 
