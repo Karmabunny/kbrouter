@@ -11,7 +11,7 @@
     <!-- <exclude-pattern>/path/to/files/*.php</exclude-pattern> -->
 
     <!-- Test this PHP version. -->
-    <config name="testVersion" value="7.1"/>
+    <config name="testVersion" value="7.1-"/>
 
     <!-- Extend this ruleset. -->
     <rule ref="PHPCompatibility">
