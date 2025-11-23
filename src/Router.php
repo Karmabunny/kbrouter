@@ -421,6 +421,7 @@ abstract class Router
             }
 
             // Extra protections for PHP 8.1+ because it's cheap.
+            // @phpstan-ignore-next-line : PHP8 property, already guarded.
             if (PHP_VERSION_ID > 80100 and !array_is_list($target)) {
                 return false;
             }
@@ -560,9 +561,10 @@ abstract class Router
                 if ($type instanceof ReflectionNamedType) {
                     $type_names[] = $type->getName();
                 }
-                else if ($type instanceof ReflectionUnionType) {
+                // @phpstan-ignore-next-line : PHP8 property, already guarded.
+                else if (PHP_VERSION_ID >= 80000 and $type instanceof ReflectionUnionType) {
+                    // @phpstan-ignore-next-line : PHP8 property, already guarded.
                     foreach ($type->getTypes() as $sub_type) {
-                        // @phpstan-ignore-next-line: This IS ALWAYS a named type. Gah.
                         $type_names[] = $sub_type->getName();
                     }
                 }
@@ -577,10 +579,13 @@ abstract class Router
                 // Not a supported arg type so skip the whole method.
                 if (empty($types)) {
                     // But if the arg is nullable we can just skip over it.
-                    if ($type and $type->allowsNull()) continue;
-
+                    if ($type and $type->allowsNull()) {
+                        continue;
+                    }
                     // No good, skip the whole method.
-                    continue 2;
+                    else {
+                        continue 2;
+                    }
                 }
 
                 $args[] = '{' . $parameter->getName() . '}';
