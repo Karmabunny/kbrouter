@@ -14,11 +14,12 @@ class AttributeRouteTest extends TestCase
     /**
      * @requires PHP >= 8.0
      */
-    public function testAttributeRoutes()
+    public function testAllRoutes()
     {
-        $router = Router::create();
+        $router = Router::create(['attrs' => Router::ATTR_ALL]);
         $actual = $router->extractFromAttributes(AttrTestController::class);
         $expected = [
+            'GET /' => [AttrTestController::class, 'actionRoot'],
             'GET /test' => [AttrTestController::class, 'actionTest'],
             '/thingo/{etc}' => [AttrTestController::class, 'thingEtc'],
             '/duplicate/{etc}/123' => [AttrTestController::class, 'thingEtc'],
@@ -30,10 +31,26 @@ class AttributeRouteTest extends TestCase
         $this->assertEquals($expected, $actual);
     }
 
+    /**
+     * @requires PHP >= 8.0
+     */
+    public function testAttributesRoutes()
+    {
+        $router = Router::create(['attrs' => Router::ATTR_ATTRIBUTES]);
+        $actual = $router->extractFromAttributes(AttrTestController::class);
+        $expected = [
+            '/php8/*/only' => [AttrTestController::class, 'eightOnly'],
+            '/php8/another' => [AttrTestController::class, 'eightAnother'],
+            '/php8/repeated' => [AttrTestController::class, 'eightAnother'],
+        ];
+
+        $this->assertEquals($expected, $actual);
+    }
+
 
     public function testDocRoutes()
     {
-        $router = Router::create();
+        $router = Router::create(['attrs' => Router::ATTR_DOCS]);
         $actual = $router->extractFromAttributes(AttrTestController::class);
         $expected = [
             'GET /' => [AttrTestController::class, 'actionRoot'],
