@@ -534,7 +534,7 @@ abstract class Router
             $rule_class = $reflect->getShortName();
         }
         else {
-            $rule_class = $class;
+            $rule_class = is_object($class) ? get_class($class) : $class;
         }
 
         $routes = [];
