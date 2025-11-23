@@ -563,7 +563,7 @@ abstract class Router
                 else if ($type instanceof ReflectionUnionType) {
                     foreach ($type->getTypes() as $sub_type) {
                         // @phpstan-ignore-next-line: This IS ALWAYS a named type. Gah.
-                        $type_name[] = $sub_type->getName();
+                        $type_names[] = $sub_type->getName();
                     }
                 }
                 else {
