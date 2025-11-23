@@ -25,6 +25,12 @@ class PrefixExtractTest extends TestCase
             'prefix/duplicate/{etc}/123' => [AttrTestController::class, 'thingEtc'],
         ];
 
+        if (PHP_VERSION_ID >= 80000) {
+            $expected['prefix/php8/*/only'] = [AttrTestController::class, 'eightOnly'];
+            $expected['prefix/php8/another'] = [AttrTestController::class, 'eightAnother'];
+            $expected['prefix/php8/repeated'] = [AttrTestController::class, 'eightAnother'];
+        }
+
         $this->assertEquals($expected, $actual);
     }
 
@@ -41,6 +47,12 @@ class PrefixExtractTest extends TestCase
             '/prefix/thingo/{etc}' => [AttrTestController::class, 'thingEtc'],
             '/prefix/duplicate/{etc}/123' => [AttrTestController::class, 'thingEtc'],
         ];
+
+        if (PHP_VERSION_ID >= 80000) {
+            $expected['/prefix/php8/*/only'] = [AttrTestController::class, 'eightOnly'];
+            $expected['/prefix/php8/another'] = [AttrTestController::class, 'eightAnother'];
+            $expected['/prefix/php8/repeated'] = [AttrTestController::class, 'eightAnother'];
+        }
 
         $this->assertEquals($expected, $actual);
     }
