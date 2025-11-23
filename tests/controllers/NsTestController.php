@@ -13,11 +13,11 @@ class NsTestController extends BaseController
 
     public function big_long_method_name() {}
 
-    public function optionals(string $one, string $two = 'prefill', ?string $three) {}
+    public function optionals(string $one, ?string $two, string $three = 'prefill') {}
 
     public static function staticAction() {}
 
-    public static function acceptableArgs(float $num, array $config = null, ?object $context) {}
+    public static function acceptableArgs(float $num, ?array $config, ?object $context = null) {}
 
     // Ignored
     public function _fakePrivate() {}
