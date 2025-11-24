@@ -167,8 +167,10 @@ abstract class Router
             // Parse routes from objects + class strings.
             if (
                 ($this->config->extract & self::EXTRACT_ALL)
-                and (is_string($target) or is_object($target))
-                and class_exists($target)
+                and (
+                    (is_string($target) and class_exists($target))
+                    or is_object($target)
+                )
                 and (
                     ($this->config->extract & self::EXTRACT_WITH_PREFIXES)
                     or is_numeric($rule)
