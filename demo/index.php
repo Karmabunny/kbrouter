@@ -115,11 +115,11 @@ class App
     /**
      * No doc routes, just attributes.
      *
-     * @param string $hiiii
+     * @param ?string $hiiii
      */
     #[Route('/php8/{hiiii}')]
     #[Route('/lots-and-lots')]
-    function php8only(string $hiiii = null)
+    function php8only(?string $hiiii = null)
     {
         if (!$hiiii) {
             $hiiii = 'Yoouu';
