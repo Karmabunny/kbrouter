@@ -81,10 +81,10 @@ abstract class Router
      *
      * 1. METHOD + no variables
      * 2. METHOD + variables
-     * 3. METHOD + wilcards
+     * 3. METHOD + wildcards
      * 4. (all) + no variables
      * 5. (all) + variables
-     * 6. (all) + wilcards
+     * 6. (all) + wildcards
      *
      * NOTE: rules are sorted per target/controller, not globally.
      */
