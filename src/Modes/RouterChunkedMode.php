@@ -44,6 +44,7 @@ class RouterChunkedMode extends Router
     /** @inheritdoc */
     public function find(string $method, string $path): ?Action
     {
+        $method = strtoupper($method);
         $route = "{$method} {$path}";
 
         foreach ($this->patterns as [$pattern, $rules]) {

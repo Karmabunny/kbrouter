@@ -49,6 +49,8 @@ class RouterSingleMode extends Router
     /** @inheritdoc */
     public function find(string $method, string $path): ?Action
     {
+        $method = strtoupper($method);
+
         foreach ($this->patterns as $pattern => [$rule, $target]) {
             $matches = [];
             if (!preg_match($pattern, "{$method} {$path}", $matches)) continue;

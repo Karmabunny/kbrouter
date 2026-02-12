@@ -65,6 +65,47 @@ abstract class RouterTestCase extends TestCase
     }
 
 
+    public function testCaseInsensitive()
+    {
+        $router = Router::create($this->router->config);
+        $router->config->case_insensitive = false;
+        $router->load($this->routes);
+
+        // Good.
+        $action = $router->find('GET', '/get/123');
+        $this->assertNotNull($action);
+        $this->assertEquals('get route', $action->target);
+
+        // Bad.
+        $action = $router->find('GET', '/GET/123');
+        $this->assertNull($action);
+
+        // Methods are not case sensitive.
+        $action = $router->find('get', '/get/123');
+        $this->assertNotNull($action);
+        $this->assertEquals('get route', $action->target);
+
+        $router = Router::create($router->config);
+        $router->config->case_insensitive = true;
+        $router->load($this->routes);
+
+        // Still good.
+        $action = $router->find('GET', '/get/123');
+        $this->assertNotNull($action);
+        $this->assertEquals('get route', $action->target);
+
+        // Now this works.
+        $action = $router->find('GET', '/GET/123');
+        $this->assertNotNull($action);
+        $this->assertEquals('get route', $action->target);
+
+        // Also still good.
+        $action = $router->find('get', '/GeT/123');
+        $this->assertNotNull($action);
+        $this->assertEquals('get route', $action->target);
+    }
+
+
     public function testVariables()
     {
         $action = $this->router->find('GET', '/abc/12345');

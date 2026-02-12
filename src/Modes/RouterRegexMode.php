@@ -25,6 +25,8 @@ class RouterRegexMode extends Router
     /** @inheritdoc */
     public function find(string $method, string $path): ?Action
     {
+        $method = strtoupper($method);
+
         foreach ($this->routes as $rule => $target) {
             $pattern = $this->expandRule($rule);
 
