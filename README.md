@@ -161,8 +161,6 @@ See `src/RouterConfig.php`.
 - some sort of caching
 - ACTION method?
 - something about unicode?
-- match/sort explicit method (POST,GET) before wildcard methods
-- chunked regex mode
 - compat attribute loader (for sprout3)
   - converts rule syntax to regex
   - inserts targets as `ns\to\class/method/arg1/arg2`
