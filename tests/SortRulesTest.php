@@ -120,7 +120,7 @@ class SortRulesTest extends TestCase
         $this->assertNotNull($action);
         $this->assertEquals('/thingo/{etc}', $action->rule);
 
-        // explict methods get priority.
+        // Explicit methods get priority.
         $action = $router->find('POST', '/thingo/test');
         $this->assertNotNull($action);
         $this->assertEquals('POST /thingo/{etc}', $action->rule);

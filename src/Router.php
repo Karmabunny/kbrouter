@@ -172,7 +172,7 @@ abstract class Router
      */
     public function load(array $routes): array
     {
-        // Force rebuld the rule inspector.
+        // Force rebuild the rule inspector.
         $this->getRuleInspector(true);
 
         $new_routes = [];
