@@ -74,6 +74,24 @@ abstract class Router
     /** Add prefixes, but also permit multiple controllers per rule. */
     const EXTRACT_NESTED_PREFIXES = 1024;
 
+    /**
+     * Sort attributes by priority.
+     *
+     * Like so:
+     *
+     * 1. METHOD + no variables
+     * 2. METHOD + variables
+     * 3. METHOD + wildcards
+     * 4. (all) + no variables
+     * 5. (all) + variables
+     * 6. (all) + wildcards
+     * 7. rule length (longer first)
+     * 8. lexicographic
+     *
+     * NOTE: rules are sorted per target/controller, not globally.
+     */
+    const EXTRACT_SORT_ATTRIBUTES = 2048;
+
     /** Extract all attribute routes. */
     const ATTR_ALL = self::ATTR_ATTRIBUTES | self::ATTR_DOCS;
 
@@ -96,6 +114,9 @@ abstract class Router
 
     /** @var RouterConfig */
     public $config;
+
+    /** @var callable|null */
+    protected $rule_inspector = null;
 
 
     /**
@@ -153,6 +174,9 @@ abstract class Router
      */
     public function load(array $routes): array
     {
+        // Force rebuild the rule inspector.
+        $this->getRuleInspector(true);
+
         $new_routes = [];
 
         // If enabled, the target can be a class. From this we extract
@@ -657,6 +681,67 @@ abstract class Router
 
 
     /**
+     * Sort attributes by priority.
+     *
+     * @see Router::EXTRACT_SORT_ATTRIBUTES
+     * @param array $rules
+     * @param bool $refresh Refresh the rule inspector
+     * @return void
+     */
+    public function sortAttributes(array &$rules, bool $refresh = false): void
+    {
+        $inspector = $this->getRuleInspector($refresh);
+
+        uksort($rules, function(string $a, string $b) use ($inspector) {
+            $a = $inspector($a);
+            $b = $inspector($b);
+
+            return (
+                $b['method'] <=> $a['method']
+                ?: (!$b['variable'] && !$b['wildcard']) <=> (!$a['variable'] && !$a['wildcard'])
+                ?: $b['variable'] <=> $a['variable']
+                ?: $a['wildcard'] <=> $b['wildcard']
+                ?: strlen($b['rule']) <=> strlen($a['rule'])
+                ?: strcmp($a['rule'], $b['rule'])
+            );
+        });
+    }
+
+
+    /**
+     * Get the rule inspector function.
+     *
+     * @param bool $refresh
+     * @return callable
+     */
+    public function getRuleInspector(bool $refresh = false): callable
+    {
+        if ($refresh or !$this->rule_inspector) {
+            $methods = implode('|', array_map('preg_quote', $this->config->methods));
+            $pattern = "/(^(?:{$methods})\s)|(\{[a-z][a-z0-9_]*\})|(\*)/";
+
+            if ($this->config->case_insensitive) {
+                $pattern .= 'i';
+            }
+
+            $this->rule_inspector = function(string $rule) use ($pattern) {
+                $matches = [];
+                preg_match_all($pattern, $rule, $matches);
+
+                return [
+                    'rule' => $rule,
+                    'method' => !empty(array_filter($matches[1])),
+                    'variable' => !empty(array_filter($matches[2])),
+                    'wildcard' => !empty(array_filter($matches[3])),
+                ];
+            };
+        }
+
+        return $this->rule_inspector;
+    }
+
+
+    /**
      * Perform rule extractions, as appropriate.
      *
      * @param string|object $target
@@ -679,6 +764,10 @@ abstract class Router
 
         if ($this->config->extract & self::EXTRACT_ATTRIBUTES) {
             $auto = $this->extractFromAttributes($target, $prefix);
+
+            if ($this->config->extract & self::EXTRACT_SORT_ATTRIBUTES) {
+                $this->sortAttributes($auto);
+            }
 
             foreach ($auto as $sub_rule => $sub_target) {
                 $routes[$sub_rule] = $sub_target;

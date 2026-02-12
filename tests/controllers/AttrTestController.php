@@ -7,10 +7,28 @@ use karmabunny\router\Route;
 
 class AttrTestController extends BaseController
 {
+
+    /**
+     * @route /thingo/{etc}
+     * @route /duplicate/{etc}/123
+     */
+    public function thingEtc(string $etc) {}
+
+
+    /**
+     * @route /thingo/test
+     */
+    public function thingTest() {}
+
     /**
      * @route GET /
      */
     public function actionRoot() {}
+
+    /**
+     * @route POST /thingo/{etc}
+     */
+    public function thingPost(string $etc) {}
 
     /**
      * @route GET /test
@@ -18,10 +36,10 @@ class AttrTestController extends BaseController
     public function actionTest() {}
 
     /**
-     * @route /thingo/{etc}
-     * @route /duplicate/{etc}/123
+     * @route GET /thingo/{etc}
      */
-    public function thingEtc(string $etc) {}
+    public function thingGet(string $etc) {}
+
 
     #[Route('/php8/*/only')]
     public function eightOnly() {}
