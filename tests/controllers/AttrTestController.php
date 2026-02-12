@@ -18,7 +18,7 @@ class AttrTestController extends BaseController
     /**
      * @route /thingo/test
      */
-    public function thingTest(string $etc) {}
+    public function thingTest() {}
 
     /**
      * @route GET /

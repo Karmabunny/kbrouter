@@ -122,7 +122,7 @@ class PrefixExtractTest extends TestCase
             'ACTION prefix/attr-test/root' => [AttrTestController::class, 'actionRoot'],
             'ACTION prefix/attr-test/test' => [AttrTestController::class, 'actionTest'],
             'ACTION prefix/attr-test/thing-etc/{etc}' => [AttrTestController::class, 'thingEtc'],
-            'ACTION prefix/attr-test/thing-test/{etc}' => [AttrTestController::class, 'thingTest'],
+            'ACTION prefix/attr-test/thing-test' => [AttrTestController::class, 'thingTest'],
             'ACTION prefix/attr-test/eight-only' => [AttrTestController::class, 'eightOnly'],
             'ACTION prefix/attr-test/eight-another' => [AttrTestController::class, 'eightAnother'],
             'ACTION prefix/attr-test/thing-post/{etc}' => [AttrTestController::class, 'thingPost'],
