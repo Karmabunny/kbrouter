@@ -84,6 +84,28 @@ echo $action->args, PHP_EOL;
 ```
 
 
+The router doesn't explcitly require a "controller" concept, nor methods or anything. Simply it returns the target provided in the rule table.
+
+However, the `Action` class does provide some helpers to execute functions or controller methods.
+
+
+```php
+// Assert the target is callable:
+// either a plain method, closure, or [class, method].
+$action->isCallable();
+
+// Assert the target is in the form of [class, method].
+if ($action->isController(MyController::class)) {
+    $controller = $action->createController();
+    $result = $action->invoke($controller);
+}
+else {
+    // For everything else.
+    $result = $action->invoke();
+}
+```
+
+
 ## Route table
 
 The route table can be built by hand as always. This a keyed array of rules to target. A 'target' is typically a callable.

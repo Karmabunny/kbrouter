@@ -68,7 +68,7 @@ class Action
     /**
      * The target is for a matching controller.
      *
-     * @param object|string $controller
+     * @param object|class-string $controller
      * @return bool
      */
     public function isController($controller): bool
@@ -82,6 +82,24 @@ class Action
             $class === $controller or
             is_subclass_of($class, $controller)
         );
+    }
+
+
+    /**
+     * Create the controller instance.
+     *
+     * This doesn't assert the controller type, first use {@see isController()}.
+     *
+     * @param array $args constructor arguments
+     * @return object|null
+     */
+    public function createController(array $args)
+    {
+        if (!is_array($this->target)) return null;
+        if (count($this->target) != 2) return null;
+
+        [$class, $method] = $this->target;
+        return new $class(...$args);
     }
 
 
