@@ -22,7 +22,7 @@ class SortRulesTest extends TestCase
             'm v w' => [2, 'GET /test/{etc}/*', ['method' => true,  'variable' => true,  'wildcard' => true]],
             'm v'   => [1, 'GET /test/{etc}',   ['method' => true,  'variable' => true,  'wildcard' => false]],
             'x'     => [4, '/test/thing',       ['method' => false, 'variable' => false, 'wildcard' => false]],
-            'm'     => [0, 'GET /test/thing',   ['method' => true,  'variable' => false, 'wildcard' => false]],
+            'm'     => [0, 'get /test/thing',   ['method' => true,  'variable' => false, 'wildcard' => false]],
             'o'     => [5, 'ANOTHER /test',     ['method' => false, 'variable' => false, 'wildcard' => false]],
         ];
     }

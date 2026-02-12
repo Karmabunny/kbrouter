@@ -711,7 +711,11 @@ abstract class Router
     {
         if ($refresh or !$this->rule_inspector) {
             $methods = implode('|', array_map('preg_quote', $this->config->methods));
-            $pattern = "/(^{$methods} )|(\{[a-z][a-z0-9_]*\})|(\*)/";
+            $pattern = "/(^(?:{$methods})\s)|(\{[a-z][a-z0-9_]*\})|(\*)/";
+
+            if ($this->config->case_insensitive) {
+                $pattern .= 'i';
+            }
 
             $this->rule_inspector = function(string $rule) use ($pattern) {
                 $matches = [];
