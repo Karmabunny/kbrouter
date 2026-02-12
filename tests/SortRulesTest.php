@@ -46,18 +46,22 @@ class SortRulesTest extends TestCase
         $router = Router::create();
         $rules = self::dataRules();
 
+        $rules = array_combine(
+            array_column($rules, 1),
+            array_column($rules, 0)
+        );
+
         // Expected sort.
         $expected = $rules;
-        uasort($expected, function($a, $b) {
-            return $a[0] <=> $b[0];
-        });
-        $expected = array_column($expected, 1);
+        asort($expected);
+        $expected = array_keys($expected);
 
         // Actual sort.
-        $sorted = array_column($rules, 1);
-        usort($sorted, [$router, 'sortAttributes']);
+        $actual = $rules;
+        $router->sortAttributes($actual);
+        $actual = array_keys($actual);
 
-        $this->assertEquals($expected, $sorted);
+        $this->assertEquals($expected, $actual);
     }
 
 

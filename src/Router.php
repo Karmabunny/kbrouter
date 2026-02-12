@@ -682,22 +682,25 @@ abstract class Router
      * Sort attributes by priority.
      *
      * @see Router::EXTRACT_SORT_ATTRIBUTES
-     * @param string $a
-     * @param string $b
-     * @return int
+     * @param array $rules
+     * @param bool $refresh Refresh the rule inspector
+     * @return void
      */
-    public function sortAttributes(string $a, string $b): int
+    public function sortAttributes(array &$rules, bool $refresh = false): void
     {
-        $inspector = $this->getRuleInspector();
-        $a = $inspector($a);
-        $b = $inspector($b);
+        $inspector = $this->getRuleInspector($refresh);
 
-        return (
-            $b['method'] <=> $a['method']
-            ?: (!$b['variable'] && !$b['wildcard']) <=> (!$a['variable'] && !$a['wildcard'])
-            ?: $b['variable'] <=> $a['variable']
-            ?: $a['wildcard'] <=> $b['wildcard']
-        );
+        uksort($rules, function(string $a, string $b) use ($inspector) {
+            $a = $inspector($a);
+            $b = $inspector($b);
+
+            return (
+                $b['method'] <=> $a['method']
+                ?: (!$b['variable'] && !$b['wildcard']) <=> (!$a['variable'] && !$a['wildcard'])
+                ?: $b['variable'] <=> $a['variable']
+                ?: $a['wildcard'] <=> $b['wildcard']
+            );
+        });
     }
 
 
@@ -759,7 +762,7 @@ abstract class Router
             $auto = $this->extractFromAttributes($target, $prefix);
 
             if ($this->config->extract & self::EXTRACT_SORT_ATTRIBUTES) {
-                uksort($auto, [$this, 'sortAttributes']);
+                $this->sortAttributes($auto);
             }
 
             foreach ($auto as $sub_rule => $sub_target) {
