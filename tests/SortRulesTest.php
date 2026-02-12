@@ -65,7 +65,7 @@ class SortRulesTest extends TestCase
     {
         $router = Router::create();
         // Disable attribute sort.
-        $router->config->extract ^= Router::EXTRACT_SORT_ATTRIBUTES;
+        $router->config->extract &= ~Router::EXTRACT_SORT_ATTRIBUTES;
         $router->config->attrs = Router::ATTR_DOCS;
 
         $router->load([
