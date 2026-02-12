@@ -22,6 +22,7 @@ class PrefixExtractTest extends TestCase
             'GET prefix' => [AttrTestController::class, 'actionRoot'],
             'GET prefix/test' => [AttrTestController::class, 'actionTest'],
             'prefix/thingo/{etc}' => [AttrTestController::class, 'thingEtc'],
+            'prefix/thingo/test' => [AttrTestController::class, 'thingTest'],
             'prefix/duplicate/{etc}/123' => [AttrTestController::class, 'thingEtc'],
         ];
 
@@ -30,6 +31,9 @@ class PrefixExtractTest extends TestCase
             $expected['prefix/php8/another'] = [AttrTestController::class, 'eightAnother'];
             $expected['prefix/php8/repeated'] = [AttrTestController::class, 'eightAnother'];
         }
+
+        $expected['POST prefix/thingo/{etc}'] = [AttrTestController::class, 'thingPost'];
+        $expected['GET prefix/thingo/{etc}'] = [AttrTestController::class, 'thingGet'];
 
         $this->assertEquals($expected, $actual);
     }
@@ -45,6 +49,7 @@ class PrefixExtractTest extends TestCase
             'GET /prefix' => [AttrTestController::class, 'actionRoot'],
             'GET /prefix/test' => [AttrTestController::class, 'actionTest'],
             '/prefix/thingo/{etc}' => [AttrTestController::class, 'thingEtc'],
+            '/prefix/thingo/test' => [AttrTestController::class, 'thingTest'],
             '/prefix/duplicate/{etc}/123' => [AttrTestController::class, 'thingEtc'],
         ];
 
@@ -53,6 +58,9 @@ class PrefixExtractTest extends TestCase
             $expected['/prefix/php8/another'] = [AttrTestController::class, 'eightAnother'];
             $expected['/prefix/php8/repeated'] = [AttrTestController::class, 'eightAnother'];
         }
+
+        $expected['POST /prefix/thingo/{etc}'] = [AttrTestController::class, 'thingPost'];
+        $expected['GET /prefix/thingo/{etc}'] = [AttrTestController::class, 'thingGet'];
 
         $this->assertEquals($expected, $actual);
     }
@@ -114,8 +122,11 @@ class PrefixExtractTest extends TestCase
             'ACTION prefix/attr-test/root' => [AttrTestController::class, 'actionRoot'],
             'ACTION prefix/attr-test/test' => [AttrTestController::class, 'actionTest'],
             'ACTION prefix/attr-test/thing-etc/{etc}' => [AttrTestController::class, 'thingEtc'],
+            'ACTION prefix/attr-test/thing-test/{etc}' => [AttrTestController::class, 'thingTest'],
             'ACTION prefix/attr-test/eight-only' => [AttrTestController::class, 'eightOnly'],
             'ACTION prefix/attr-test/eight-another' => [AttrTestController::class, 'eightAnother'],
+            'ACTION prefix/attr-test/thing-post/{etc}' => [AttrTestController::class, 'thingPost'],
+            'ACTION prefix/attr-test/thing-get/{etc}' => [AttrTestController::class, 'thingGet'],
         ];
 
         $actual = $router->routes;

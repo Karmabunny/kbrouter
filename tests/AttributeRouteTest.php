@@ -22,10 +22,13 @@ class AttributeRouteTest extends TestCase
             'GET /' => [AttrTestController::class, 'actionRoot'],
             'GET /test' => [AttrTestController::class, 'actionTest'],
             '/thingo/{etc}' => [AttrTestController::class, 'thingEtc'],
+            '/thingo/test' => [AttrTestController::class, 'thingTest'],
             '/duplicate/{etc}/123' => [AttrTestController::class, 'thingEtc'],
             '/php8/*/only' => [AttrTestController::class, 'eightOnly'],
             '/php8/another' => [AttrTestController::class, 'eightAnother'],
             '/php8/repeated' => [AttrTestController::class, 'eightAnother'],
+            'POST /thingo/{etc}' => [AttrTestController::class, 'thingPost'],
+            'GET /thingo/{etc}' => [AttrTestController::class, 'thingGet'],
         ];
 
         $this->assertEquals($expected, $actual);
@@ -56,7 +59,10 @@ class AttributeRouteTest extends TestCase
             'GET /' => [AttrTestController::class, 'actionRoot'],
             'GET /test' => [AttrTestController::class, 'actionTest'],
             '/thingo/{etc}' => [AttrTestController::class, 'thingEtc'],
+            '/thingo/test' => [AttrTestController::class, 'thingTest'],
             '/duplicate/{etc}/123' => [AttrTestController::class, 'thingEtc'],
+            'POST /thingo/{etc}' => [AttrTestController::class, 'thingPost'],
+            'GET /thingo/{etc}' => [AttrTestController::class, 'thingGet'],
         ];
 
         $this->assertEquals($expected, $actual);

@@ -163,10 +163,10 @@ class ExtractRouteTest extends TestCase
         ]);
 
         if (PHP_VERSION_ID >= 80000) {
-            $this->assertCount(10, $router->routes);
+            $this->assertCount(13, $router->routes);
         }
         else {
-            $this->assertCount(7, $router->routes);
+            $this->assertCount(9, $router->routes);
         }
 
         $action = $router->find('GET', '/a/test/one');
@@ -213,17 +213,17 @@ class ExtractRouteTest extends TestCase
 
         // attributes.
         if (PHP_VERSION_ID >= 80000) {
-            $count += 7;
+            $count += 10;
         }
         else {
-            $count += 4;
+            $count += 7;
         }
 
         // namespaces, from ns-test.
         $count += 9;
 
         // namespaces, from attr-test.
-        $count += 5;
+        $count += 8;
 
         $this->assertCount($count, $router->routes);
     }
@@ -248,17 +248,17 @@ class ExtractRouteTest extends TestCase
 
         // attributes.
         if (PHP_VERSION_ID >= 80000) {
-            $count += 7 * 2;
+            $count += 10 * 2;
         }
         else {
-            $count += 4 * 2;
+            $count += 7 * 2;
         }
 
         // namespaces, from ns-test.
         $count += 9 * 2;
 
         // namespaces, from attr-test.
-        $count += 5 * 2;
+        $count += 8 * 2;
 
         $this->assertCount($count, $router->routes);
 
