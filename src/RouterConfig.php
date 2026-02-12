@@ -25,6 +25,7 @@ class RouterConfig
         'prefixes' => Router::EXTRACT_WITH_PREFIXES,
         'short' => Router::EXTRACT_SHORT_NAMESPACES,
         'nested' => Router::EXTRACT_NESTED_PREFIXES,
+        'sort' => Router::EXTRACT_SORT_ATTRIBUTES,
         'none' => Router::EXTRACT_NONE,
     ];
 
@@ -50,10 +51,14 @@ class RouterConfig
      * - 'prefixes' (256) add prefixes to extracted routes
      * - 'short' (512) only use controller/method in the rule path
      * - 'nested' (256 + 1024) permit multiple controllers per prefix
+     * - 'sort' (2048) sort attributes by priority
      *
      * @var int
      */
-    public $extract = Router::EXTRACT_ATTRIBUTES | Router::EXTRACT_WITH_PREFIXES;
+    public $extract = 0
+        | Router::EXTRACT_ATTRIBUTES
+        | Router::EXTRACT_WITH_PREFIXES
+    ;
 
 
     /**
