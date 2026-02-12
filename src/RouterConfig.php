@@ -58,6 +58,7 @@ class RouterConfig
     public $extract = 0
         | Router::EXTRACT_ATTRIBUTES
         | Router::EXTRACT_WITH_PREFIXES
+        | Router::EXTRACT_SORT_ATTRIBUTES
     ;
 
 
