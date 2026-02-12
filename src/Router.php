@@ -85,6 +85,8 @@ abstract class Router
      * 4. (all) + no variables
      * 5. (all) + variables
      * 6. (all) + wildcards
+     * 7. rule length (longer first)
+     * 8. lexicographic
      *
      * NOTE: rules are sorted per target/controller, not globally.
      */
@@ -699,6 +701,8 @@ abstract class Router
                 ?: (!$b['variable'] && !$b['wildcard']) <=> (!$a['variable'] && !$a['wildcard'])
                 ?: $b['variable'] <=> $a['variable']
                 ?: $a['wildcard'] <=> $b['wildcard']
+                ?: strlen($b['rule']) <=> strlen($a['rule'])
+                ?: strcmp($a['rule'], $b['rule'])
             );
         });
     }

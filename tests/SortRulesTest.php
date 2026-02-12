@@ -16,14 +16,17 @@ class SortRulesTest extends TestCase
     public static function dataRules(): array
     {
         return [
-            'w'     => [7, '/test/*',           ['method' => false, 'variable' => false, 'wildcard' => true]],
+            'w'     => [10,'/test/*',           ['method' => false, 'variable' => false, 'wildcard' => true]],
+            'w1'    => [9, '/asdf/*',           ['method' => false, 'variable' => false, 'wildcard' => true]],
+            'w2'    => [8, '/testlong/*',       ['method' => false, 'variable' => false, 'wildcard' => true]],
+            'w3'    => [7, '/testlonger/*',     ['method' => false, 'variable' => false, 'wildcard' => true]],
             'm w'   => [3, 'GET /test/*',       ['method' => true,  'variable' => false, 'wildcard' => true]],
             'v'     => [6, '/test/{etc}',       ['method' => false, 'variable' => true,  'wildcard' => false]],
             'm v w' => [2, 'GET /test/{etc}/*', ['method' => true,  'variable' => true,  'wildcard' => true]],
             'm v'   => [1, 'GET /test/{etc}',   ['method' => true,  'variable' => true,  'wildcard' => false]],
-            'x'     => [4, '/test/thing',       ['method' => false, 'variable' => false, 'wildcard' => false]],
+            'x'     => [5, '/test/thing',       ['method' => false, 'variable' => false, 'wildcard' => false]],
             'm'     => [0, 'get /test/thing',   ['method' => true,  'variable' => false, 'wildcard' => false]],
-            'o'     => [5, 'ANOTHER /test',     ['method' => false, 'variable' => false, 'wildcard' => false]],
+            'o'     => [4, 'ANOTHER /test',     ['method' => false, 'variable' => false, 'wildcard' => false]],
         ];
     }
 
