@@ -6,6 +6,8 @@
 
 namespace karmabunny\router;
 
+use ReflectionClass;
+use ReflectionException;
 use ReflectionFunction;
 use ReflectionMethod;
 
@@ -78,10 +80,29 @@ class Action
 
         [$class, $method] = $this->target;
 
-        return (
-            $class === $controller or
-            is_subclass_of($class, $controller)
-        );
+        try {
+            $reflect = new ReflectionClass($class);
+
+            if (
+                $reflect->isAbstract()
+                or $reflect->isInterface()
+                or $reflect->isTrait()
+            ) {
+                return false;
+            }
+
+            if (
+                $reflect->getName() !== $controller
+                and !$reflect->isSubclassOf($controller)
+            ) {
+                return false;
+            }
+
+            return true;
+        }
+        catch (ReflectionException $error) {
+            return false;
+        }
     }
 
 
