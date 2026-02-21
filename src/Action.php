@@ -26,19 +26,41 @@ use ReflectionMethod;
 class Action
 {
 
-    /** @var string */
+    /**
+     * The HTTP verb, like GET/POST/etc.
+     *
+     * @var string
+     */
     public $method;
 
-    /** @var string */
+    /**
+     * The Request URI.
+     *
+     * @var string
+     */
     public $path;
 
-    /** @var string */
+    /**
+     * The rule pattern that matched.
+     *
+     * @var string
+     */
     public $rule;
 
-    /** @var mixed */
+    /**
+     * The route target.
+     *
+     * Could be any, but typically a callable like `[class, method]`.
+     *
+     * @var mixed
+     */
     public $target;
 
-    /** @var string[] */
+    /**
+     * The path arguments parsed from the path + rule.
+     *
+     * @var string[]
+     */
     public $args;
 
 
