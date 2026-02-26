@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * @link      https://github.com/Karmabunny
  * @copyright Copyright (c) 2021 Karmabunny
@@ -35,7 +36,7 @@ class RouterConfig
      *
      * @var string
      */
-    public $mode = Router::MODE_CHUNKED;
+    public string $mode = Router::MODE_CHUNKED;
 
 
     /**
@@ -55,7 +56,7 @@ class RouterConfig
      *
      * @var int
      */
-    public $extract = 0
+    public int $extract = 0
         | Router::EXTRACT_ATTRIBUTES
         | Router::EXTRACT_WITH_PREFIXES
         | Router::EXTRACT_SORT_ATTRIBUTES
@@ -71,7 +72,7 @@ class RouterConfig
      *
      * @var int
      */
-    public $attrs = Router::ATTR_ALL;
+    public int $attrs = Router::ATTR_ALL;
 
 
     /**
@@ -79,15 +80,15 @@ class RouterConfig
      *
      * @var bool
      */
-    public $case_insensitive = true;
+    public bool $case_insensitive = true;
 
 
     /**
      * Permitted methods.
      *
-     * @var string[]
+     * @var array<int, string>
      */
-    public $methods = Router::METHODS;
+    public array $methods = Router::METHODS;
 
 
     /**
@@ -95,7 +96,7 @@ class RouterConfig
      *
      * @var int
      */
-    public $chunk_size = 10;
+    public int $chunk_size = 10;
 
 
     /**
@@ -103,7 +104,7 @@ class RouterConfig
      *
      * @var callable|null
      */
-    public $edit_namespace_rule = [self::class, 'editNamespaceRule'];
+    public mixed $edit_namespace_rule = [self::class, 'editNamespaceRule'];
 
 
     /**
@@ -111,15 +112,15 @@ class RouterConfig
      *
      * @var string
      */
-    protected $_extract = '|';
+    protected string $_extract = '|';
 
 
     /**
      * Build a config.
      *
-     * @param array $config
+     * @param array<string, mixed> $config
      */
-    public function __construct($config)
+    public function __construct(array $config)
     {
         // Convert strings into a bitwise mask.
         if (is_string($extract = $config['extract'] ?? null)) {
@@ -174,7 +175,7 @@ class RouterConfig
      * @param string $rule
      * @return string
      */
-    public static function editNamespaceRule(string $rule)
+    public static function editNamespaceRule(string $rule): string
     {
         static $remove = [
             '/app/',

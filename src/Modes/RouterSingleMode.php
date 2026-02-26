@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * @link      https://github.com/Karmabunny
  * @copyright Copyright (c) 2021 Karmabunny
@@ -43,7 +44,7 @@ class RouterSingleMode extends Router
 
 
     /** @var array [ pattern => [rule, target] ] */
-    public $patterns = [];
+    public array $patterns = [];
 
 
     /** @inheritdoc */
@@ -87,10 +88,10 @@ class RouterSingleMode extends Router
     /**
      * Create regex patterns from the route rules.
      *
-     * @param array $routes
+     * @param array<string, mixed> $routes
      * @return void
      */
-    public function compile(array $routes)
+    public function compile(array $routes): void
     {
         foreach ($routes as $rule => $target) {
             $pattern = $this->expandRule($rule);
