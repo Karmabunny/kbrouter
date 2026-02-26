@@ -16,7 +16,7 @@ class ExtractRouteTest extends TestCase
 
     public function testExtractConfig()
     {
-        $config = new RouterConfig([ 'extract' => null ]);
+        $config = new RouterConfig([ 'extract' => 0 ]);
         $this->assertEquals(Router::EXTRACT_NONE, $config->extract);
         $this->assertNotContains('ACTION', $config->methods);
 
