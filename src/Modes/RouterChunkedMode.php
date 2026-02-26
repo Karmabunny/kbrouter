@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * @link      https://github.com/Karmabunny
  * @copyright Copyright (c) 2021 Karmabunny
@@ -38,7 +39,7 @@ class RouterChunkedMode extends Router
 
 
     /** @var array [ pattern, rules ] */
-    public $patterns = [];
+    public array $patterns = [];
 
 
     /** @inheritdoc */
@@ -130,10 +131,10 @@ class RouterChunkedMode extends Router
      * didn't feel beneficial. I may eat my words later. We can always switch
      * that in later if we need to.
      *
-     * @param array $routes [ rule => target ]
+     * @param array<string, mixed> $routes [ rule => target ]
      * @return void
      */
-    public function compile(array $routes)
+    public function compile(array $routes): void
     {
         $chunks = array_chunk($routes, $this->config->chunk_size, true);
         $methods = implode('|', $this->config->methods);
@@ -161,7 +162,7 @@ class RouterChunkedMode extends Router
                 // No match means wildcard.
                 $pattern = preg_replace_callback(
                     self::PATTERN_RULE,
-                    function ($matches) use (&$names) {
+                    function (array $matches) use (&$names): string {
                         $name = $matches[1] ?? null;
                         $names[] = $name;
 

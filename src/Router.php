@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * @link      https://github.com/Karmabunny
  * @copyright Copyright (c) 2021 Karmabunny
@@ -109,20 +110,20 @@ abstract class Router
     const RULE_TEMPLATE = '!\\\{([a-z][a-z0-9_]*)\\\}!i';
 
 
-    /** @var array rule => target */
-    public $routes = [];
+    /** @var array<string, mixed> [ rule => target ] */
+    public array $routes = [];
 
     /** @var RouterConfig */
-    public $config;
+    public RouterConfig $config;
 
     /** @var callable|null */
-    protected $rule_inspector = null;
+    protected mixed $rule_inspector = null;
 
 
     /**
-     * @param RouterConfig|array $config
+     * @param RouterConfig|array<string, mixed> $config
      */
-    protected function __construct($config)
+    protected function __construct(RouterConfig|array $config)
     {
         if (is_array($config)) {
             $config = new RouterConfig($config);
@@ -135,11 +136,11 @@ abstract class Router
     /**
      * Create a router.
      *
-     * @param RouterConfig|array $config
+     * @param RouterConfig|array<string, mixed> $config
      * @return Router
      * @throws InvalidArgumentException
      */
-    public static function create($config = []): Router
+    public static function create(RouterConfig|array $config = []): Router
     {
         if (is_array($config)) {
             $config = new RouterConfig($config);
@@ -158,7 +159,7 @@ abstract class Router
     /**
      * Get the currently loaded routes.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function getRoutes(): array
     {
@@ -169,8 +170,8 @@ abstract class Router
     /**
      * Load routes.
      *
-     * @param array $routes [ rule => target ]
-     * @return array [ rule => target ] diff of new routes
+     * @param array<string|int, mixed> $routes [ rule => target ]
+     * @return array<string, mixed> [ rule => target ] diff of new routes
      */
     public function load(array $routes): array
     {
@@ -261,7 +262,7 @@ abstract class Router
      * @param bool $short
      * @return void
      */
-    public function loadFrom($class, $prefix = '', $short = false)
+    public function loadFrom(string|object $class, string $prefix = '', bool $short = false): void
     {
         $this->loadAttributes($class, $prefix);
         $this->loadNamespaces($class, $prefix, $short);
@@ -277,7 +278,7 @@ abstract class Router
      * @param string $prefix
      * @return void
      */
-    public function loadAttributes($class, $prefix = '')
+    public function loadAttributes(string|object $class, string $prefix = ''): void
     {
         $routes = $this->extractFromAttributes($class, $prefix);
         $this->load($routes);
@@ -294,7 +295,7 @@ abstract class Router
      * @param bool $short Use short names (class::method only)
      * @return void
      */
-    public function loadNamespaces($class, $prefix = '', $short = false)
+    public function loadNamespaces(string|object $class, string $prefix = '', bool $short = false): void
     {
         $routes = $this->extractFromNamespaces($class, $prefix, $short);
         $this->load($routes);
@@ -337,7 +338,7 @@ abstract class Router
      * Insert parameters into a route pattern.
      *
      * @param string $rule Route pattern
-     * @param array $parameters Keyed array: name => value
+     * @param array<string, string> $parameters Keyed array: name => value
      * @return string A regular string path
      */
     public static function fillRuleValues(string $rule, array $parameters): string
@@ -346,7 +347,7 @@ abstract class Router
 
         return preg_replace_callback(
             self::RULE_TEMPLATE,
-            function($m) use ($parameters) {
+            function(array $m) use ($parameters): string {
                 // Arg name or fallback to the template.
                 return $parameters[$m[1]] ?? $m[0];
             },
@@ -422,7 +423,7 @@ abstract class Router
      * @param mixed $target
      * @return bool
      */
-    public static function isCallable($target): bool
+    public static function isCallable(mixed $target): bool
     {
         $yes = is_callable($target);
 
@@ -464,7 +465,7 @@ abstract class Router
      * @return array [ rule => target ]
      * @throws ReflectionException
      */
-    public function extractFromAttributes($class, $prefix = ''): array
+    public function extractFromAttributes(string|object $class, string $prefix = ''): array
     {
         $reflect = new ReflectionClass($class);
         $methods = $reflect->getMethods(ReflectionMethod::IS_PUBLIC);
@@ -541,7 +542,7 @@ abstract class Router
      * @return array [ rule => target ]
      * @throws ReflectionException
      */
-    public function extractFromNamespaces($class, $prefix = '', $short = false): array
+    public function extractFromNamespaces(string|object $class, string $prefix = '', bool $short = false): array
     {
         $reflect = new ReflectionClass($class);
         $methods = $reflect->getMethods(ReflectionMethod::IS_PUBLIC);
@@ -629,7 +630,7 @@ abstract class Router
             // Convert camel case to kebab case.
             $rule = preg_replace_callback(
                 '/[A-Z0-9]/',
-                function ($matches) {
+                function (array $matches): string {
                     return '-' . strtolower($matches[0]);
                 },
                 $rule
@@ -675,7 +676,7 @@ abstract class Router
      * Sort attributes by priority.
      *
      * @see Router::EXTRACT_SORT_ATTRIBUTES
-     * @param array $rules
+     * @param array<string, mixed> $rules
      * @param bool $refresh Refresh the rule inspector
      * @return void
      */
@@ -683,7 +684,7 @@ abstract class Router
     {
         $inspector = $this->getRuleInspector($refresh);
 
-        uksort($rules, function(string $a, string $b) use ($inspector) {
+        uksort($rules, function(string $a, string $b) use ($inspector): int {
             $a = $inspector($a);
             $b = $inspector($b);
 
@@ -715,7 +716,7 @@ abstract class Router
                 $pattern .= 'i';
             }
 
-            $this->rule_inspector = function(string $rule) use ($pattern) {
+            $this->rule_inspector = function(string $rule) use ($pattern): array {
                 $matches = [];
                 preg_match_all($pattern, $rule, $matches);
 
@@ -737,10 +738,10 @@ abstract class Router
      *
      * @param string|object $target
      * @param string $prefix
-     * @return array routes
+     * @return array<string, mixed> routes
      * @throws ReflectionException
      */
-    protected function extractAll($target, string $prefix): array
+    protected function extractAll(string|object $target, string $prefix): array
     {
         $routes = [];
 
@@ -816,7 +817,7 @@ abstract class Router
      * @param string $rule
      * @return string
      */
-    protected function editNamespaceRule(string $rule)
+    protected function editNamespaceRule(string $rule): string
     {
         if ($fn = $this->config->edit_namespace_rule) {
             return $fn($rule);

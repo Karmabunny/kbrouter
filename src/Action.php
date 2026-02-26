@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * @link      https://github.com/Karmabunny
  * @copyright Copyright (c) 2021 Karmabunny
@@ -31,21 +32,21 @@ class Action
      *
      * @var string
      */
-    public $method;
+    public string $method;
 
     /**
      * The Request URI.
      *
      * @var string
      */
-    public $path;
+    public string $path;
 
     /**
      * The rule pattern that matched.
      *
      * @var string
      */
-    public $rule;
+    public string $rule;
 
     /**
      * The route target.
@@ -54,20 +55,20 @@ class Action
      *
      * @var mixed
      */
-    public $target;
+    public mixed $target;
 
     /**
      * The path arguments parsed from the path + rule.
      *
      * @var string[]
      */
-    public $args;
+    public array $args;
 
 
     /**
-     * @param array $config
+     * @param array<string, mixed> $config
      */
-    public function __construct($config)
+    public function __construct(array $config)
     {
         foreach ($config as $key => $value) {
             $this->$key = $value;
@@ -95,7 +96,7 @@ class Action
      * @param object|class-string $controller
      * @return bool
      */
-    public function isController($controller): bool
+    public function isController(object|string $controller): bool
     {
         if (!is_array($this->target)) return false;
         if (count($this->target) != 2) return false;
@@ -136,7 +137,7 @@ class Action
      * @param array $args constructor arguments
      * @return object|null
      */
-    public function createController(array $args)
+    public function createController(array $args): ?object
     {
         if (!is_array($this->target)) return null;
         if (count($this->target) != 2) return null;
@@ -158,7 +159,7 @@ class Action
      * @param object|null $instance
      * @return mixed
      */
-    public function invoke($instance = null)
+    public function invoke(?object $instance = null): mixed
     {
         // PHP 8 can expand keyed arrays. It's truly magical.
         if ($instance) {
