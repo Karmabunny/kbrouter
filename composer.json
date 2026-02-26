@@ -36,5 +36,8 @@
         "publish": "bash scripts/publish.sh",
         "analyse": "phpstan analyse -c phpstan.neon",
         "compat": "phpcs -p --standard=phpcs.xml --colors --extensions=php"
+    },
+    "require": {
+        "php": "^8.1"
     }
 }
