@@ -161,46 +161,12 @@ class Action
     public function invoke($instance = null)
     {
         // PHP 8 can expand keyed arrays. It's truly magical.
-        if (PHP_VERSION_ID >= 80000) {
-            if ($instance) {
-                [$class, $name] = $this->target;
-                return $instance->$name(...$this->args);
-            }
-            else {
-                return ($this->target)(...$this->args);
-            }
+        if ($instance) {
+            [$class, $name] = $this->target;
+            return $instance->$name(...$this->args);
         }
-        // Otherwise we've got to reflect everything.
         else {
-            if ($instance) {
-                [$class, $name] = $this->target;
-                $reflect = new ReflectionMethod($instance, $name);
-                $function = [$instance, $name];
-            }
-            else {
-                $reflect = new ReflectionFunction($this->target);
-                $function = $this->target;
-            }
-
-            // Reshuffle named args into the correct order.
-            $args = $this->args;
-            $params = [];
-
-            foreach ($reflect->getParameters() as $param) {
-                $name = $param->getName();
-                $arg = $this->args[$name] ?? null;
-                if ($arg === null) continue;
-
-                $params[] = $arg;
-                unset($args[$name]);
-            }
-
-            // Include wildcards at the end.
-            foreach ($args as $arg) {
-                $params[] = $arg;
-            }
-
-            return $function(...$params);
+            return ($this->target)(...$this->args);
         }
     }
 }

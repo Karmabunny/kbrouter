@@ -432,31 +432,25 @@ abstract class Router
 
         // It might be a non-static callable. PHP 8+ doesn't treat these the
         // same, which is fair. We gotta assess this some other way.
-        if (PHP_VERSION_ID >= 80000) {
-            if (is_string($target)) {
-                $target = rtrim($target, '()');
-                $target = explode('::', $target, 2);
-            }
-
-            if (
-                !is_callable($target, true)
-                or !is_array($target)
-                or !count($target) == 2
-            ) {
-                return false;
-            }
-
-            // Extra protections for PHP 8.1+ because it's cheap.
-            // @phpstan-ignore-next-line : PHP8 property, already guarded.
-            if (PHP_VERSION_ID > 80100 and !array_is_list($target)) {
-                return false;
-            }
-
-            [$class, $name] = $target;
-            return method_exists($class, $name);
+        if (is_string($target)) {
+            $target = rtrim($target, '()');
+            $target = explode('::', $target, 2);
         }
 
-        return false;
+        if (
+            !is_callable($target, true)
+            or !is_array($target)
+            or !count($target) == 2
+        ) {
+            return false;
+        }
+
+        if (!array_is_list($target)) {
+            return false;
+        }
+
+        [$class, $name] = $target;
+        return method_exists($class, $name);
     }
 
 
@@ -484,8 +478,7 @@ abstract class Router
             $target = [$class, $method->getShortName()];
 
             // God-master race PHP8.
-            if ($this->config->attrs & self::ATTR_ATTRIBUTES and PHP_VERSION_ID > 80000) {
-                // @phpstan-ignore-next-line : PHP8 property, already guarded.
+            if ($this->config->attrs & self::ATTR_ATTRIBUTES) {
                 $attributes = $method->getAttributes(Route::class);
 
                 foreach ($attributes as $attribute) {
@@ -587,9 +580,7 @@ abstract class Router
                 if ($type instanceof ReflectionNamedType) {
                     $type_names[] = $type->getName();
                 }
-                // @phpstan-ignore-next-line : PHP8 property, already guarded.
-                else if (PHP_VERSION_ID >= 80000 and $type instanceof ReflectionUnionType) {
-                    // @phpstan-ignore-next-line : PHP8 property, already guarded.
+                else if ($type instanceof ReflectionUnionType) {
                     foreach ($type->getTypes() as $sub_type) {
                         $type_names[] = $sub_type->getName();
                     }

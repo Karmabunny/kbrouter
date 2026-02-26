@@ -24,16 +24,12 @@ class PrefixExtractTest extends TestCase
             'prefix/thingo/{etc}' => [AttrTestController::class, 'thingEtc'],
             'prefix/thingo/test' => [AttrTestController::class, 'thingTest'],
             'prefix/duplicate/{etc}/123' => [AttrTestController::class, 'thingEtc'],
+            'prefix/php8/*/only' => [AttrTestController::class, 'eightOnly'],
+            'prefix/php8/another' => [AttrTestController::class, 'eightAnother'],
+            'prefix/php8/repeated' => [AttrTestController::class, 'eightAnother'],
+            'POST prefix/thingo/{etc}' => [AttrTestController::class, 'thingPost'],
+            'GET prefix/thingo/{etc}' => [AttrTestController::class, 'thingGet'],
         ];
-
-        if (PHP_VERSION_ID >= 80000) {
-            $expected['prefix/php8/*/only'] = [AttrTestController::class, 'eightOnly'];
-            $expected['prefix/php8/another'] = [AttrTestController::class, 'eightAnother'];
-            $expected['prefix/php8/repeated'] = [AttrTestController::class, 'eightAnother'];
-        }
-
-        $expected['POST prefix/thingo/{etc}'] = [AttrTestController::class, 'thingPost'];
-        $expected['GET prefix/thingo/{etc}'] = [AttrTestController::class, 'thingGet'];
 
         $this->assertEquals($expected, $actual);
     }
@@ -51,16 +47,12 @@ class PrefixExtractTest extends TestCase
             '/prefix/thingo/{etc}' => [AttrTestController::class, 'thingEtc'],
             '/prefix/thingo/test' => [AttrTestController::class, 'thingTest'],
             '/prefix/duplicate/{etc}/123' => [AttrTestController::class, 'thingEtc'],
+            '/prefix/php8/*/only' => [AttrTestController::class, 'eightOnly'],
+            '/prefix/php8/another' => [AttrTestController::class, 'eightAnother'],
+            '/prefix/php8/repeated' => [AttrTestController::class, 'eightAnother'],
+            'POST /prefix/thingo/{etc}' => [AttrTestController::class, 'thingPost'],
+            'GET /prefix/thingo/{etc}' => [AttrTestController::class, 'thingGet'],
         ];
-
-        if (PHP_VERSION_ID >= 80000) {
-            $expected['/prefix/php8/*/only'] = [AttrTestController::class, 'eightOnly'];
-            $expected['/prefix/php8/another'] = [AttrTestController::class, 'eightAnother'];
-            $expected['/prefix/php8/repeated'] = [AttrTestController::class, 'eightAnother'];
-        }
-
-        $expected['POST /prefix/thingo/{etc}'] = [AttrTestController::class, 'thingPost'];
-        $expected['GET /prefix/thingo/{etc}'] = [AttrTestController::class, 'thingGet'];
 
         $this->assertEquals($expected, $actual);
     }
