@@ -6,6 +6,7 @@
 
 namespace karmabunny\router;
 
+use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionFunction;
@@ -156,10 +157,21 @@ class Action
      * Again, you must call the `isController()` check.
      *
      * @param object|null $instance
+     * @param string|null $proxy method name (given a controller instance)
      * @return mixed
      */
-    public function invoke($instance = null)
+    public function invoke($instance = null, $proxy = null): mixed
     {
+        // Given an instance + proxy we leave everything up to the controller.
+        if ($instance and $proxy) {
+            if (!method_exists($instance, $proxy)) {
+                throw new InvalidArgumentException("Method '{$proxy}' does not exist on " . get_class($instance));
+            }
+
+            [, $name] = $this->target;
+            return $instance->$proxy($name, $this->args);
+        }
+
         // PHP 8 can expand keyed arrays. It's truly magical.
         if (PHP_VERSION_ID >= 80000) {
             if ($instance) {
