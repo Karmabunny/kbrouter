@@ -29,7 +29,10 @@
     "config": {
         "sort-packages": true,
         "optimize-autoloader": true,
-        "preferred-install": { "karmabunny/*": "dist" }
+        "preferred-install": { "karmabunny/*": "dist" },
+        "platform": {
+            "php": "8.2"
+        }
     },
     "scripts": {
         "tests": "phpunit --testdox tests",
@@ -38,6 +41,6 @@
         "compat": "phpcs -p --standard=phpcs.xml --colors --extensions=php"
     },
     "require": {
-        "php": "^8.1"
+        "php": "^8.2"
     }
 }
