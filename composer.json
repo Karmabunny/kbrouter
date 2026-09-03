@@ -29,12 +29,18 @@
     "config": {
         "sort-packages": true,
         "optimize-autoloader": true,
-        "preferred-install": { "karmabunny/*": "dist" }
+        "preferred-install": { "karmabunny/*": "dist" },
+        "platform": {
+            "php": "8.2"
+        }
     },
     "scripts": {
         "tests": "phpunit --testdox tests",
         "publish": "bash scripts/publish.sh",
         "analyse": "phpstan analyse -c phpstan.neon",
         "compat": "phpcs -p --standard=phpcs.xml --colors --extensions=php"
+    },
+    "require": {
+        "php": "^8.2"
     }
 }

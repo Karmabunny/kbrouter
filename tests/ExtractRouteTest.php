@@ -16,7 +16,7 @@ class ExtractRouteTest extends TestCase
 
     public function testExtractConfig()
     {
-        $config = new RouterConfig([ 'extract' => null ]);
+        $config = new RouterConfig([ 'extract' => 0 ]);
         $this->assertEquals(Router::EXTRACT_NONE, $config->extract);
         $this->assertNotContains('ACTION', $config->methods);
 
@@ -162,12 +162,7 @@ class ExtractRouteTest extends TestCase
             '/prefix' => AttrTestController::class,
         ]);
 
-        if (PHP_VERSION_ID >= 80000) {
-            $this->assertCount(13, $router->routes);
-        }
-        else {
-            $this->assertCount(9, $router->routes);
-        }
+        $this->assertCount(13, $router->routes);
 
         $action = $router->find('GET', '/a/test/one');
         $this->assertNotNull($action);
@@ -212,12 +207,7 @@ class ExtractRouteTest extends TestCase
         $count = 2;
 
         // attributes.
-        if (PHP_VERSION_ID >= 80000) {
-            $count += 10;
-        }
-        else {
-            $count += 7;
-        }
+        $count += 10;
 
         // namespaces, from ns-test.
         $count += 9;
@@ -247,12 +237,7 @@ class ExtractRouteTest extends TestCase
         $count = 2;
 
         // attributes.
-        if (PHP_VERSION_ID >= 80000) {
-            $count += 10 * 2;
-        }
-        else {
-            $count += 7 * 2;
-        }
+        $count += 10 * 2;
 
         // namespaces, from ns-test.
         $count += 9 * 2;

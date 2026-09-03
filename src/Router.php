@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * @link      https://github.com/Karmabunny
  * @copyright Copyright (c) 2021 Karmabunny
@@ -109,20 +110,20 @@ abstract class Router
     const RULE_TEMPLATE = '!\\\{([a-z][a-z0-9_]*)\\\}!i';
 
 
-    /** @var array rule => target */
-    public $routes = [];
+    /** @var array<string, mixed> [ rule => target ] */
+    public array $routes = [];
 
     /** @var RouterConfig */
-    public $config;
+    public RouterConfig $config;
 
     /** @var callable|null */
-    protected $rule_inspector = null;
+    protected mixed $rule_inspector = null;
 
 
     /**
-     * @param RouterConfig|array $config
+     * @param RouterConfig|array<string, mixed> $config
      */
-    protected function __construct($config)
+    protected function __construct(RouterConfig|array $config)
     {
         if (is_array($config)) {
             $config = new RouterConfig($config);
@@ -135,11 +136,11 @@ abstract class Router
     /**
      * Create a router.
      *
-     * @param RouterConfig|array $config
+     * @param RouterConfig|array<string, mixed> $config
      * @return Router
      * @throws InvalidArgumentException
      */
-    public static function create($config = []): Router
+    public static function create(RouterConfig|array $config = []): Router
     {
         if (is_array($config)) {
             $config = new RouterConfig($config);
@@ -158,7 +159,7 @@ abstract class Router
     /**
      * Get the currently loaded routes.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function getRoutes(): array
     {
@@ -169,8 +170,8 @@ abstract class Router
     /**
      * Load routes.
      *
-     * @param array $routes [ rule => target ]
-     * @return array [ rule => target ] diff of new routes
+     * @param array<string|int, mixed> $routes [ rule => target ]
+     * @return array<string, mixed> [ rule => target ] diff of new routes
      */
     public function load(array $routes): array
     {
@@ -261,7 +262,7 @@ abstract class Router
      * @param bool $short
      * @return void
      */
-    public function loadFrom($class, $prefix = '', $short = false)
+    public function loadFrom(string|object $class, string $prefix = '', bool $short = false): void
     {
         $this->loadAttributes($class, $prefix);
         $this->loadNamespaces($class, $prefix, $short);
@@ -277,7 +278,7 @@ abstract class Router
      * @param string $prefix
      * @return void
      */
-    public function loadAttributes($class, $prefix = '')
+    public function loadAttributes(string|object $class, string $prefix = ''): void
     {
         $routes = $this->extractFromAttributes($class, $prefix);
         $this->load($routes);
@@ -294,7 +295,7 @@ abstract class Router
      * @param bool $short Use short names (class::method only)
      * @return void
      */
-    public function loadNamespaces($class, $prefix = '', $short = false)
+    public function loadNamespaces(string|object $class, string $prefix = '', bool $short = false): void
     {
         $routes = $this->extractFromNamespaces($class, $prefix, $short);
         $this->load($routes);
@@ -337,7 +338,7 @@ abstract class Router
      * Insert parameters into a route pattern.
      *
      * @param string $rule Route pattern
-     * @param array $parameters Keyed array: name => value
+     * @param array<string, string> $parameters Keyed array: name => value
      * @return string A regular string path
      */
     public static function fillRuleValues(string $rule, array $parameters): string
@@ -346,7 +347,7 @@ abstract class Router
 
         return preg_replace_callback(
             self::RULE_TEMPLATE,
-            function($m) use ($parameters) {
+            function(array $m) use ($parameters): string {
                 // Arg name or fallback to the template.
                 return $parameters[$m[1]] ?? $m[0];
             },
@@ -422,7 +423,7 @@ abstract class Router
      * @param mixed $target
      * @return bool
      */
-    public static function isCallable($target): bool
+    public static function isCallable(mixed $target): bool
     {
         $yes = is_callable($target);
 
@@ -432,31 +433,25 @@ abstract class Router
 
         // It might be a non-static callable. PHP 8+ doesn't treat these the
         // same, which is fair. We gotta assess this some other way.
-        if (PHP_VERSION_ID >= 80000) {
-            if (is_string($target)) {
-                $target = rtrim($target, '()');
-                $target = explode('::', $target, 2);
-            }
-
-            if (
-                !is_callable($target, true)
-                or !is_array($target)
-                or !count($target) == 2
-            ) {
-                return false;
-            }
-
-            // Extra protections for PHP 8.1+ because it's cheap.
-            // @phpstan-ignore-next-line : PHP8 property, already guarded.
-            if (PHP_VERSION_ID > 80100 and !array_is_list($target)) {
-                return false;
-            }
-
-            [$class, $name] = $target;
-            return method_exists($class, $name);
+        if (is_string($target)) {
+            $target = rtrim($target, '()');
+            $target = explode('::', $target, 2);
         }
 
-        return false;
+        if (
+            !is_callable($target, true)
+            or !is_array($target)
+            or !count($target) == 2
+        ) {
+            return false;
+        }
+
+        if (!array_is_list($target)) {
+            return false;
+        }
+
+        [$class, $name] = $target;
+        return method_exists($class, $name);
     }
 
 
@@ -470,7 +465,7 @@ abstract class Router
      * @return array [ rule => target ]
      * @throws ReflectionException
      */
-    public function extractFromAttributes($class, $prefix = ''): array
+    public function extractFromAttributes(string|object $class, string $prefix = ''): array
     {
         $reflect = new ReflectionClass($class);
         $methods = $reflect->getMethods(ReflectionMethod::IS_PUBLIC);
@@ -484,8 +479,7 @@ abstract class Router
             $target = [$class, $method->getShortName()];
 
             // God-master race PHP8.
-            if ($this->config->attrs & self::ATTR_ATTRIBUTES and PHP_VERSION_ID > 80000) {
-                // @phpstan-ignore-next-line : PHP8 property, already guarded.
+            if ($this->config->attrs & self::ATTR_ATTRIBUTES) {
                 $attributes = $method->getAttributes(Route::class);
 
                 foreach ($attributes as $attribute) {
@@ -548,7 +542,7 @@ abstract class Router
      * @return array [ rule => target ]
      * @throws ReflectionException
      */
-    public function extractFromNamespaces($class, $prefix = '', $short = false): array
+    public function extractFromNamespaces(string|object $class, string $prefix = '', bool $short = false): array
     {
         $reflect = new ReflectionClass($class);
         $methods = $reflect->getMethods(ReflectionMethod::IS_PUBLIC);
@@ -587,9 +581,7 @@ abstract class Router
                 if ($type instanceof ReflectionNamedType) {
                     $type_names[] = $type->getName();
                 }
-                // @phpstan-ignore-next-line : PHP8 property, already guarded.
-                else if (PHP_VERSION_ID >= 80000 and $type instanceof ReflectionUnionType) {
-                    // @phpstan-ignore-next-line : PHP8 property, already guarded.
+                else if ($type instanceof ReflectionUnionType) {
                     foreach ($type->getTypes() as $sub_type) {
                         $type_names[] = $sub_type->getName();
                     }
@@ -638,7 +630,7 @@ abstract class Router
             // Convert camel case to kebab case.
             $rule = preg_replace_callback(
                 '/[A-Z0-9]/',
-                function ($matches) {
+                function (array $matches): string {
                     return '-' . strtolower($matches[0]);
                 },
                 $rule
@@ -684,7 +676,7 @@ abstract class Router
      * Sort attributes by priority.
      *
      * @see Router::EXTRACT_SORT_ATTRIBUTES
-     * @param array $rules
+     * @param array<string, mixed> $rules
      * @param bool $refresh Refresh the rule inspector
      * @return void
      */
@@ -692,7 +684,7 @@ abstract class Router
     {
         $inspector = $this->getRuleInspector($refresh);
 
-        uksort($rules, function(string $a, string $b) use ($inspector) {
+        uksort($rules, function(string $a, string $b) use ($inspector): int {
             $a = $inspector($a);
             $b = $inspector($b);
 
@@ -724,7 +716,7 @@ abstract class Router
                 $pattern .= 'i';
             }
 
-            $this->rule_inspector = function(string $rule) use ($pattern) {
+            $this->rule_inspector = function(string $rule) use ($pattern): array {
                 $matches = [];
                 preg_match_all($pattern, $rule, $matches);
 
@@ -746,10 +738,10 @@ abstract class Router
      *
      * @param string|object $target
      * @param string $prefix
-     * @return array routes
+     * @return array<string, mixed> routes
      * @throws ReflectionException
      */
-    protected function extractAll($target, string $prefix): array
+    protected function extractAll(string|object $target, string $prefix): array
     {
         $routes = [];
 
@@ -825,7 +817,7 @@ abstract class Router
      * @param string $rule
      * @return string
      */
-    protected function editNamespaceRule(string $rule)
+    protected function editNamespaceRule(string $rule): string
     {
         if ($fn = $this->config->edit_namespace_rule) {
             return $fn($rule);

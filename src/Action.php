@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * @link      https://github.com/Karmabunny
  * @copyright Copyright (c) 2021 Karmabunny
@@ -32,21 +33,21 @@ class Action
      *
      * @var string
      */
-    public $method;
+    public string $method;
 
     /**
      * The Request URI.
      *
      * @var string
      */
-    public $path;
+    public string $path;
 
     /**
      * The rule pattern that matched.
      *
      * @var string
      */
-    public $rule;
+    public string $rule;
 
     /**
      * The route target.
@@ -55,20 +56,20 @@ class Action
      *
      * @var mixed
      */
-    public $target;
+    public mixed $target;
 
     /**
      * The path arguments parsed from the path + rule.
      *
      * @var string[]
      */
-    public $args;
+    public array $args;
 
 
     /**
-     * @param array $config
+     * @param array<string, mixed> $config
      */
-    public function __construct($config)
+    public function __construct(array $config)
     {
         foreach ($config as $key => $value) {
             $this->$key = $value;
@@ -96,7 +97,7 @@ class Action
      * @param object|class-string $controller
      * @return bool
      */
-    public function isController($controller): bool
+    public function isController(object|string $controller): bool
     {
         if (!is_array($this->target)) return false;
         if (count($this->target) != 2) return false;
@@ -137,7 +138,7 @@ class Action
      * @param array $args constructor arguments
      * @return object|null
      */
-    public function createController(array $args)
+    public function createController(array $args): ?object
     {
         if (!is_array($this->target)) return null;
         if (count($this->target) != 2) return null;
@@ -160,7 +161,7 @@ class Action
      * @param string|null $proxy method name (given a controller instance)
      * @return mixed
      */
-    public function invoke($instance = null, $proxy = null): mixed
+    public function invoke(?object $instance = null, ?string $proxy = null): mixed
     {
         // Given an instance + proxy we leave everything up to the controller.
         if ($instance and $proxy) {
@@ -173,46 +174,12 @@ class Action
         }
 
         // PHP 8 can expand keyed arrays. It's truly magical.
-        if (PHP_VERSION_ID >= 80000) {
-            if ($instance) {
-                [$class, $name] = $this->target;
-                return $instance->$name(...$this->args);
-            }
-            else {
-                return ($this->target)(...$this->args);
-            }
+        if ($instance) {
+            [$class, $name] = $this->target;
+            return $instance->$name(...$this->args);
         }
-        // Otherwise we've got to reflect everything.
         else {
-            if ($instance) {
-                [$class, $name] = $this->target;
-                $reflect = new ReflectionMethod($instance, $name);
-                $function = [$instance, $name];
-            }
-            else {
-                $reflect = new ReflectionFunction($this->target);
-                $function = $this->target;
-            }
-
-            // Reshuffle named args into the correct order.
-            $args = $this->args;
-            $params = [];
-
-            foreach ($reflect->getParameters() as $param) {
-                $name = $param->getName();
-                $arg = $this->args[$name] ?? null;
-                if ($arg === null) continue;
-
-                $params[] = $arg;
-                unset($args[$name]);
-            }
-
-            // Include wildcards at the end.
-            foreach ($args as $arg) {
-                $params[] = $arg;
-            }
-
-            return $function(...$params);
+            return ($this->target)(...$this->args);
         }
     }
 }
