@@ -160,7 +160,7 @@ class Action
      * @param string|null $proxy method name (given a controller instance)
      * @return mixed
      */
-    public function invoke($instance = null, $proxy = null): mixed
+    public function invoke($instance = null, $proxy = null)
     {
         // Given an instance + proxy we leave everything up to the controller.
         if ($instance and $proxy) {
